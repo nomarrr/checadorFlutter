@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'maestro_drawer.dart';
+import 'maestro_dashboard_screen.dart';
+
+class MaestroLayoutScreen extends StatefulWidget {
+  final String currentRoute;
+  
+  const MaestroLayoutScreen({
+    super.key,
+    required this.currentRoute,
+  });
+
+  @override
+  State<MaestroLayoutScreen> createState() => _MaestroLayoutScreenState();
+}
+
+class _MaestroLayoutScreenState extends State<MaestroLayoutScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _selectedIndex = 0;
+  int _refreshKey = 0;
+
+  final List<String> _routes = [
+    '/maestro/dashboard',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _updateSelectedIndex();
+  }
+
+  @override
+  void didUpdateWidget(MaestroLayoutScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentRoute != widget.currentRoute) {
+      _updateSelectedIndex();
+    }
+  }
+
+  void _updateSelectedIndex() {
+    final index = _routes.indexWhere((route) => widget.currentRoute.contains(route));
+    if (index != -1) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _onItemSelected(int index) {
+    if (index < _routes.length) {
+      _scaffoldKey.currentState?.closeDrawer();
+      context.go(_routes[index]);
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  String _getAppBarTitle() {
+    if (widget.currentRoute.contains('/dashboard')) {
+      return 'Panel Maestro';
+    }
+    return 'Maestro';
+  }
+
+  Widget _buildContent() {
+    if (widget.currentRoute.contains('/dashboard')) {
+      return MaestroDashboardScreen(key: ValueKey(_refreshKey));
+    }
+    return MaestroDashboardScreen(key: ValueKey(_refreshKey));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFFF2F3F8),
+      appBar: AppBar(
+        title: Text(_getAppBarTitle()),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _refreshKey++;
+              });
+            },
+          ),
+        ],
+      ),
+      drawer: MaestroDrawer(
+        selectedIndex: _selectedIndex,
+        onItemSelected: _onItemSelected,
+      ),
+      body: _buildContent(),
+    );
+  }
+}
+

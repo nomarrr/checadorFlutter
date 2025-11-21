@@ -1,0 +1,39 @@
+name: checador_flutter
+description: Aplicación móvil Flutter para el Sistema Checador
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI
+  cupertino_icons: ^1.0.6
+  material_design_icons_flutter: ^7.0.7296
+  
+  # HTTP y Networking
+  http: ^1.1.0
+  dio: ^5.4.0
+  
+  # Estado y almacenamiento
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
+  
+  # Navegación
+  go_router: ^13.0.0
+  
+  # Utilidades
+  intl: ^0.19.0
+  uuid: ^4.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
