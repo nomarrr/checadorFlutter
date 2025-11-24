@@ -25,5 +25,43 @@ class GrupoService {
       return [];
     }
   }
+
+  Future<Grupo> create(Grupo grupo) async {
+    try {
+      final headers = await _authService.getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${Environment.apiUrl}/grupos'),
+        headers: {...headers, 'Content-Type': 'application/json'},
+        body: jsonEncode(grupo.toJson()),
+      );
+
+      final result = jsonDecode(response.body);
+      if (response.statusCode == 201 && result['success']) {
+        return Grupo.fromJson(result['data']);
+      }
+      throw Exception(result['error'] ?? 'Error al crear grupo');
+    } catch (e) {
+      throw Exception('Error al crear grupo: $e');
+    }
+  }
+
+  Future<void> delete(int id) async {
+    try {
+      final headers = await _authService.getAuthHeaders();
+      final response = await http.delete(
+        Uri.parse('${Environment.apiUrl}/grupos/$id'),
+        headers: headers,
+      );
+
+      final result = jsonDecode(response.body);
+      if (response.statusCode != 200 || !result['success']) {
+        throw Exception(result['error'] ?? 'Error al eliminar grupo');
+      }
+    } catch (e) {
+      throw Exception('Error al eliminar grupo: $e');
+    }
+  }
 }
+
+
 

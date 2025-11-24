@@ -36,17 +36,21 @@ class Usuario {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = {
       'id': id,
       'auth_id': authId,
       'name': name,
       'email': email,
-      'password': password,
       'role': role,
       'numero_cuenta': numeroCuenta,
       'activo': activo,
       'created_at': createdAt,
     };
+    // Solo incluir password si no es null
+    if (password != null) {
+      json['password'] = password;
+    }
+    return json;
   }
 
   Usuario copyWith({

@@ -53,3 +53,4 @@ class Grupo {
   String get nombreEdificio => aula?['edificio']?['nombre'] ?? 'N/A';
 }
 
+
