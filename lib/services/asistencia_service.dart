@@ -54,6 +54,24 @@ class AsistenciaService {
     }
   }
 
+  Future<void> updateAsistenciaChecador(int id, TipoAsistencia nuevoEstado) async {
+    try {
+      final headers = await _authService.getAuthHeaders();
+      final response = await http.put(
+        Uri.parse('${Environment.apiUrl}/asistencias/checador/$id'),
+        headers: headers,
+        body: jsonEncode({'asistencia': nuevoEstado.value}),
+      );
+
+      final result = jsonDecode(response.body);
+      if (response.statusCode != 200 || !result['success']) {
+        throw Exception(result['error'] ?? 'Error al actualizar asistencia');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
   // ==================== ASISTENCIAS JEFE ====================
   Future<List<AsistenciaJefe>> getAsistenciasJefe({
     int? horarioId,
@@ -95,6 +113,24 @@ class AsistenciaService {
         return AsistenciaJefe.fromJson(result['data']);
       }
       throw Exception(result['error'] ?? 'Error al crear asistencia');
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> updateAsistenciaJefe(int id, TipoAsistencia nuevoEstado) async {
+    try {
+      final headers = await _authService.getAuthHeaders();
+      final response = await http.put(
+        Uri.parse('${Environment.apiUrl}/asistencias/jefe/$id'),
+        headers: headers,
+        body: jsonEncode({'asistencia': nuevoEstado.value}),
+      );
+
+      final result = jsonDecode(response.body);
+      if (response.statusCode != 200 || !result['success']) {
+        throw Exception(result['error'] ?? 'Error al actualizar asistencia');
+      }
     } catch (e) {
       throw Exception(e.toString());
     }

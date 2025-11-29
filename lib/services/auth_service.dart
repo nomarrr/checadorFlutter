@@ -108,9 +108,19 @@ class AuthService {
 
   // Cerrar sesión
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_userKey);
-    await prefs.remove(_tokenKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Eliminar datos de usuario y token
+      await prefs.remove(_userKey);
+      await prefs.remove(_tokenKey);
+      // Limpiar todas las preferencias relacionadas con la sesión
+      await prefs.clear();
+    } catch (e) {
+      print('Error al cerrar sesión: $e');
+      // Aún si hay error, intentar limpiar
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+    }
   }
 
   // Guardar usuario

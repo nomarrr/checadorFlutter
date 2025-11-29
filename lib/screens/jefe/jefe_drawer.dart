@@ -184,9 +184,30 @@ class JefeDrawer extends StatelessWidget {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () async {
-                    await authProvider.logout();
-                    if (context.mounted) {
-                      context.go('/login');
+                    // Mostrar diálogo de confirmación
+                    final confirmar = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Cerrar Sesión'),
+                        content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Sí, cerrar'),
+                          ),
+                        ],
+                      ),
+                    );
+                    
+                    if (confirmar == true && context.mounted) {
+                      await authProvider.logout();
+                      if (context.mounted) {
+                        context.go('/login');
+                      }
                     }
                   },
                   borderRadius: BorderRadius.circular(8),
@@ -195,15 +216,15 @@ class JefeDrawer extends StatelessWidget {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.logout,
                           color: Colors.white70,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
+                        SizedBox(width: 12),
+                        Text(
                           'Cerrar Sesión',
                           style: TextStyle(
                             color: Colors.white70,
