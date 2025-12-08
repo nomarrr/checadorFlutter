@@ -15,8 +15,7 @@ class AdminDrawer extends StatelessWidget {
 
   final List<MenuItem> _menuItems = const [
     MenuItem(text: 'Dashboard', icon: Icons.dashboard, route: '/admin/dashboard'),
-    MenuItem(text: 'Gestión de Horarios', icon: Icons.calendar_today, route: '/admin/horarios'),
-    MenuItem(text: 'Consulta de Horarios', icon: Icons.access_time, route: '/admin/horario'),
+    MenuItem(text: 'Horarios', icon: Icons.calendar_today, route: '/admin/horarios'),
     MenuItem(text: 'Grupos', icon: Icons.group, route: '/admin/grupos'),
     MenuItem(text: 'Usuarios', icon: Icons.person, route: '/admin/usuarios'),
     MenuItem(text: 'Materias', icon: Icons.book, route: '/admin/materias'),
@@ -234,12 +233,14 @@ class AdminDrawer extends StatelessWidget {
                         size: 20,
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Cerrar Sesión',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      Expanded(
+                        child: Text(
+                          'Cerrar Sesión',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],

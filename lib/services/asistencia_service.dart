@@ -202,5 +202,77 @@ class AsistenciaService {
       return null;
     }
   }
+
+  // Obtener todas las asistencias de todas las fuentes para un rango de fechas
+  Future<Map<String, List<dynamic>>> getAsistenciasPorSemana({
+    required int maestroId,
+    required String fechaInicio,
+    required String fechaFin,
+  }) async {
+    try {
+      final headers = await _authService.getAuthHeaders();
+      
+      // Obtener asistencias de las tres fuentes en paralelo
+      final results = await Future.wait([
+        http.get(
+          Uri.parse('${Environment.apiUrl}/asistencias/checador'),
+          headers: headers,
+        ),
+        http.get(
+          Uri.parse('${Environment.apiUrl}/asistencias/jefe'),
+          headers: headers,
+        ),
+        http.get(
+          Uri.parse('${Environment.apiUrl}/asistencias/maestro'),
+          headers: headers,
+        ),
+      ]);
+
+      final checadorData = jsonDecode(results[0].body);
+      final jefeData = jsonDecode(results[1].body);
+      final maestroData = jsonDecode(results[2].body);
+
+      // Filtrar por rango de fechas
+      final checadorList = (checadorData['data'] as List? ?? [])
+          .where((a) => _estaEnRango(a['fecha'], fechaInicio, fechaFin))
+          .map((a) => {...a, 'tipo': 'checador'})
+          .toList();
+      
+      final jefeList = (jefeData['data'] as List? ?? [])
+          .where((a) => _estaEnRango(a['fecha'], fechaInicio, fechaFin))
+          .map((a) => {...a, 'tipo': 'jefe'})
+          .toList();
+      
+      final maestroList = (maestroData['data'] as List? ?? [])
+          .where((a) => _estaEnRango(a['fecha'], fechaInicio, fechaFin))
+          .map((a) => {...a, 'tipo': 'maestro'})
+          .toList();
+
+      return {
+        'checador': checadorList,
+        'jefe': jefeList,
+        'maestro': maestroList,
+      };
+    } catch (e) {
+      print('Error en getAsistenciasPorSemana: $e');
+      return {
+        'checador': [],
+        'jefe': [],
+        'maestro': [],
+      };
+    }
+  }
+
+  bool _estaEnRango(String? fecha, String inicio, String fin) {
+    if (fecha == null) return false;
+    try {
+      final fechaDate = DateTime.parse(fecha);
+      final inicioDate = DateTime.parse(inicio);
+      final finDate = DateTime.parse(fin);
+      return !fechaDate.isBefore(inicioDate) && !fechaDate.isAfter(finDate);
+    } catch (e) {
+      return false;
+    }
+  }
 }
 

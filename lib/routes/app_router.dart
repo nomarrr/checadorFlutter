@@ -56,12 +56,6 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/admin/horario',
-        builder: (context, state) => const AdminLayoutScreen(
-          currentRoute: '/admin/horario',
-        ),
-      ),
-      GoRoute(
         path: '/admin/grupos',
         builder: (context, state) => const AdminLayoutScreen(
           currentRoute: '/admin/grupos',

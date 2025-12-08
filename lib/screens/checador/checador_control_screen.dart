@@ -23,7 +23,6 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
   final CarreraService _carreraService = CarreraService();
   
   List<HorarioMaestro> _horarios = [];
-  List<HorarioMaestro> _todosHorarios = [];
   List<dynamic> _edificios = [];
   List<Carrera> _carreras = [];
   bool _isLoading = true;
@@ -133,15 +132,29 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
       // Obtener todos los horarios
       final todosHorarios = await _horarioService.getAll();
       
+      print('📊 Total de horarios en BD: ${todosHorarios.length}');
+      
       // Filtrar por día
       var horariosFiltrados = todosHorarios.where((h) {
         if (h.dias == null) return false;
-        final diasNormalizados = h.dias!.toLowerCase().replaceAll(' ', '');
-        final diaActualNormalizado = _diaActual.toLowerCase();
-        return diasNormalizados.contains(diaActualNormalizado);
+        
+        // Normalizar: quitar espacios, comas, y convertir a minúsculas
+        final diasLista = h.dias!.toLowerCase()
+            .split(',')
+            .map((d) => d.trim().replaceAll(' ', ''))
+            .toList();
+        
+        final diaActualNormalizado = _diaActual.toLowerCase().replaceAll(' ', '');
+        
+        final encontrado = diasLista.any((dia) => dia == diaActualNormalizado);
+        
+        return encontrado;
       }).toList();
       
       print('📅 Horarios del día $_diaActual: ${horariosFiltrados.length}');
+      if (horariosFiltrados.isEmpty) {
+        print('⚠️  No hay horarios para $_diaActual');
+      };
       
       // FILTRO 1: Por Hora (si está seleccionada)
       if (_selectedHora != null) {
@@ -176,16 +189,48 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
       
       // FILTRO 2: Por Carrera (si está seleccionada)
       if (_selectedCarrera != null) {
+        print('🎓 Filtrando por carrera ID: $_selectedCarrera');
+        
+        final carrerasEncontradas = horariosFiltrados
+            .where((h) => h.grupo != null && h.grupo!['carrera_id'] != null)
+            .map((h) => h.grupo!['carrera_id'])
+            .toSet()
+            .toList();
+        print('   Carreras disponibles: $carrerasEncontradas');
+        
         horariosFiltrados = horariosFiltrados.where((h) {
           final carreraId = h.grupo?['carrera_id'];
-          return carreraId == _selectedCarrera;
+          final coincide = carreraId == _selectedCarrera;
+          if (coincide) {
+            print('   ✅ Coincidencia: ${h.nombreMateria} de carrera $carreraId');
+          }
+          return coincide;
         }).toList();
+        
+        print('   Resultado: ${horariosFiltrados.length} horarios');
       }
       
       // FILTRO 3: Por Edificio (si está seleccionado)
       if (_selectedEdificio != null) {
-        horariosFiltrados = horariosFiltrados.where((h) =>
-            h.grupo?['aula']?['edificio_id'] == _selectedEdificio).toList();
+        print('🏢 Filtrando por edificio ID: $_selectedEdificio');
+        
+        final edificiosEncontrados = horariosFiltrados
+            .where((h) => h.grupo?['aula']?['edificio_id'] != null)
+            .map((h) => h.grupo!['aula']['edificio_id'])
+            .toSet()
+            .toList();
+        print('   Edificios disponibles: $edificiosEncontrados');
+        
+        horariosFiltrados = horariosFiltrados.where((h) {
+          final edificioId = h.grupo?['aula']?['edificio_id'];
+          final coincide = edificioId == _selectedEdificio;
+          if (coincide) {
+            print('   ✅ Coincidencia: ${h.nombreMateria} en edificio $edificioId');
+          }
+          return coincide;
+        }).toList();
+        
+        print('   Resultado: ${horariosFiltrados.length} horarios');
       }
       
       // Cargar asistencias existentes para la fecha seleccionada
@@ -207,11 +252,14 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
       }
       
       setState(() {
-        _todosHorarios = todosHorarios;
         _horarios = horariosFiltrados;
         _isLoading = false;
       });
+      
+      print('✅ RESULTADO FINAL: ${horariosFiltrados.length} horarios mostrados');
+      print('═══════════════════════════════════════════════════\n');
     } catch (e) {
+      print('❌ ERROR: $e');
       setState(() {
         _isLoading = false;
       });

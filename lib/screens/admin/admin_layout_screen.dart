@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'admin_drawer.dart';
 import 'admin_dashboard_screen.dart';
 import 'admin_gestion_horarios_screen.dart';
-import 'admin_consulta_horarios_screen.dart';
 import 'admin_usuarios_screen.dart';
 import 'admin_grupos_screen.dart';
 import 'admin_materias_screen.dart';
@@ -31,7 +30,6 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   final List<String> _routes = [
     '/admin/dashboard',
     '/admin/horarios',
-    '/admin/horario',
     '/admin/grupos',
     '/admin/usuarios',
     '/admin/materias',
@@ -79,12 +77,8 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   String _getAppBarTitle() {
     if (widget.currentRoute.contains('/dashboard')) {
       return 'Dashboard';
-    } else if (widget.currentRoute.contains('/horarios') && 
-               !widget.currentRoute.contains('/horario')) {
-      return 'Gestión de Horarios';
-    } else if (widget.currentRoute.contains('/horario') && 
-               !widget.currentRoute.contains('/horarios')) {
-      return 'Consulta de Horarios';
+    } else if (widget.currentRoute.contains('/horarios')) {
+      return 'Horarios';
     } else if (widget.currentRoute.contains('/usuarios')) {
       return 'Usuarios';
     } else if (widget.currentRoute.contains('/grupos')) {
@@ -106,11 +100,8 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   Widget _buildContent() {
     if (widget.currentRoute.contains('/dashboard')) {
       return const AdminDashboardScreen();
-    } else if (widget.currentRoute.contains('/horarios') && 
-               !widget.currentRoute.contains('/horario')) {
+    } else if (widget.currentRoute.contains('/horarios')) {
       return const AdminGestionHorariosScreen();
-    } else if (widget.currentRoute.contains('/horario')) {
-      return const AdminConsultaHorariosScreen();
     } else if (widget.currentRoute.contains('/usuarios')) {
       return const AdminUsuariosScreen();
     } else if (widget.currentRoute.contains('/grupos')) {

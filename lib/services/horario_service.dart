@@ -130,11 +130,36 @@ class HorarioService {
   Future<void> delete(int id) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      await http.delete(
+      final response = await http.delete(
         Uri.parse('${Environment.apiUrl}/horarios/$id'),
         headers: headers,
       );
+
+      print('Delete response status: ${response.statusCode}');
+      print('Delete response body: ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final result = jsonDecode(response.body);
+        
+        // Detectar error de foreign key constraint
+        if (result['error'] != null && 
+            result['error'].toString().contains('foreign key constraint')) {
+          throw Exception(
+            'No se puede eliminar este horario porque tiene registros de asistencia asociados. '
+            'Por favor, elimine primero las asistencias relacionadas o contacte al administrador del sistema.'
+          );
+        }
+        
+        throw Exception(result['message'] ?? result['error'] ?? 'Error al eliminar horario');
+      }
     } catch (e) {
+      print('Error en delete: $e');
+      
+      // Si ya es un Exception con nuestro mensaje, re-lanzarlo tal cual
+      if (e is Exception && e.toString().contains('registros de asistencia')) {
+        rethrow;
+      }
+      
       throw Exception(e.toString());
     }
   }

@@ -244,40 +244,75 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
   }
 
   Future<void> _eliminarHorario(HorarioMaestro horario) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar eliminación'),
-        content: Text(
-          '¿Está seguro de eliminar este horario?\n\nEsta acción no se puede deshacer.',
+    print('=== INICIANDO _eliminarHorario ===');
+    print('Horario ID: ${horario.id}');
+    print('Maestro ID: ${horario.maestroId}');
+    print('Materia ID: ${horario.materiaId}');
+    
+    try {
+      print('Mostrando diálogo de confirmación...');
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: const Text(
+            '¿Está seguro de eliminar este horario?\n\n'
+            'ADVERTENCIA: Si existen registros de asistencia asociados a este horario, '
+            'NO se podrá eliminar. En ese caso, considere desactivarlo en lugar de eliminarlo.\n\n'
+            'Esta acción no se puede deshacer.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+      );
 
-    if (confirm == true && horario.id != null) {
-      setState(() => _loading = true);
-      try {
-        await _horarioService.delete(horario.id!);
+      print('Resultado del diálogo: $confirm');
+
+      if (confirm == true) {
+        if (horario.id == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: ID de horario no válido')),
+          );
+          return;
+        }
+
+        print('Intentando eliminar horario con ID: ${horario.id}');
+        setState(() => _loading = true);
+        try {
+          await _horarioService.delete(horario.id!);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Horario eliminado correctamente')),
+            );
+            await _loadData();
+          }
+        } catch (e) {
+          print('Error al eliminar horario: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error al eliminar: $e')),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() => _loading = false);
+          }
+        }
+      }
+    } catch (e) {
+      print('ERROR CRÍTICO en _eliminarHorario: $e');
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Horario eliminado correctamente')),
+          SnackBar(content: Text('Error crítico: $e')),
         );
-        await _loadData();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar: $e')),
-        );
-      } finally {
-        setState(() => _loading = false);
       }
     }
   }
@@ -493,7 +528,10 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                                              onPressed: () => _eliminarHorario(horario),
+                                              onPressed: () {
+                                                print('BOTÓN ELIMINAR PRESIONADO - ID: ${horario.id}');
+                                                _eliminarHorario(horario);
+                                              },
                                               padding: EdgeInsets.zero,
                                               constraints: const BoxConstraints(),
                                             ),
@@ -656,13 +694,15 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                               ),
                             ),
                             const SizedBox(width: 16),
-                            DropdownButton<String>(
-                              value: _ampmInicio,
-                              items: const [
-                                DropdownMenuItem(value: 'AM', child: Text('AM')),
-                                DropdownMenuItem(value: 'PM', child: Text('PM')),
-                              ],
-                              onChanged: (value) => setState(() => _ampmInicio = value!),
+                            Flexible(
+                              child: DropdownButton<String>(
+                                value: _ampmInicio,
+                                items: const [
+                                  DropdownMenuItem(value: 'AM', child: Text('AM')),
+                                  DropdownMenuItem(value: 'PM', child: Text('PM')),
+                                ],
+                                onChanged: (value) => setState(() => _ampmInicio = value!),
+                              ),
                             ),
                           ],
                         ),
@@ -691,13 +731,15 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                               ),
                             ),
                             const SizedBox(width: 16),
-                            DropdownButton<String>(
-                              value: _ampmFin,
-                              items: const [
-                                DropdownMenuItem(value: 'AM', child: Text('AM')),
-                                DropdownMenuItem(value: 'PM', child: Text('PM')),
-                              ],
-                              onChanged: (value) => setState(() => _ampmFin = value!),
+                            Flexible(
+                              child: DropdownButton<String>(
+                                value: _ampmFin,
+                                items: const [
+                                  DropdownMenuItem(value: 'AM', child: Text('AM')),
+                                  DropdownMenuItem(value: 'PM', child: Text('PM')),
+                                ],
+                                onChanged: (value) => setState(() => _ampmFin = value!),
+                              ),
                             ),
                           ],
                         ),
