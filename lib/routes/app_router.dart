@@ -92,6 +92,12 @@ class AppRouter {
         ),
       ),
       GoRoute(
+        path: '/admin/consulta-horarios',
+        builder: (context, state) => const AdminLayoutScreen(
+          currentRoute: '/admin/consulta-horarios',
+        ),
+      ),
+      GoRoute(
         path: '/admin/consulta-asistencias',
         builder: (context, state) => const AdminLayoutScreen(
           currentRoute: '/admin/consulta-asistencias',

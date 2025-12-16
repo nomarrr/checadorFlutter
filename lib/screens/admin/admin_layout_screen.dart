@@ -10,6 +10,7 @@ import 'admin_carreras_screen.dart';
 import 'admin_edificios_screen.dart';
 import 'admin_aulas_screen.dart';
 import 'admin_consulta_asistencias_screen.dart';
+import 'admin_consulta_horarios_screen.dart';
 
 class AdminLayoutScreen extends StatefulWidget {
   final String currentRoute;
@@ -30,6 +31,7 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   final List<String> _routes = [
     '/admin/dashboard',
     '/admin/horarios',
+    '/admin/consulta-horarios',
     '/admin/grupos',
     '/admin/usuarios',
     '/admin/materias',
@@ -78,6 +80,8 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   String _getAppBarTitle() {
     if (widget.currentRoute.contains('/dashboard')) {
       return 'Dashboard';
+    } else if (widget.currentRoute.contains('/consulta-horarios')) {
+      return 'Consulta de Horarios';
     } else if (widget.currentRoute.contains('/horarios')) {
       return 'Horarios';
     } else if (widget.currentRoute.contains('/usuarios')) {
@@ -101,6 +105,8 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   Widget _buildContent() {
     if (widget.currentRoute.contains('/dashboard')) {
       return const AdminDashboardScreen();
+    } else if (widget.currentRoute.contains('/consulta-horarios')) {
+      return const AdminConsultaHorariosScreen();
     } else if (widget.currentRoute.contains('/horarios')) {
       return const AdminGestionHorariosScreen();
     } else if (widget.currentRoute.contains('/usuarios')) {

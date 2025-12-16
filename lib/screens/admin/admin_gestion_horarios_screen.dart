@@ -297,9 +297,11 @@ class _AdminGestionHorariosScreenState
 
       if (confirm == true) {
         if (horario.id == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error: ID de horario no válido')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Error: ID de horario no válido')),
+            );
+          }
           return;
         }
 

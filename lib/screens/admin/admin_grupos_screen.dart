@@ -45,6 +45,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     try {
       final results = await Future.wait([
@@ -55,6 +56,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
         _edificioService.getAll(),
       ]);
 
+      if (!mounted) return;
       setState(() {
         grupos = results[0] as List<Grupo>;
         carreras = results[1] as List<Carrera>;
@@ -63,9 +65,12 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
         edificios = results[4];
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = 'Error al cargar los datos');
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -74,10 +79,12 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
         _selectedCarreraId == null ||
         _selectedJefeId == null ||
         _selectedAulaId == null) {
+      if (!mounted) return;
       setState(() => _error = 'Por favor complete todos los campos');
       return;
     }
 
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _error = null;
@@ -92,13 +99,17 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
       );
 
       await _grupoService.create(nuevoGrupo);
+      if (!mounted) return;
       setState(() => _success = 'Grupo creado correctamente');
       _limpiarFormulario();
       await _loadData();
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = 'Error al crear el grupo');
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -128,12 +139,16 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
     setState(() => _loading = true);
     try {
       await _grupoService.delete(grupo.id ?? 0);
+      if (!mounted) return;
       setState(() => _success = 'Grupo eliminado correctamente');
       await _loadData();
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = 'Error al eliminar el grupo');
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 

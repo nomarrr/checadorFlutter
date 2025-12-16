@@ -18,6 +18,10 @@ class AdminDrawer extends StatelessWidget {
         text: 'Dashboard', icon: Icons.dashboard, route: '/admin/dashboard'),
     MenuItem(
         text: 'Horarios', icon: Icons.calendar_today, route: '/admin/horarios'),
+    MenuItem(
+        text: 'Consulta de Horarios',
+        icon: Icons.search,
+        route: '/admin/consulta-horarios'),
     MenuItem(text: 'Grupos', icon: Icons.group, route: '/admin/grupos'),
     MenuItem(text: 'Usuarios', icon: Icons.person, route: '/admin/usuarios'),
     MenuItem(text: 'Materias', icon: Icons.book, route: '/admin/materias'),
