@@ -12,6 +12,7 @@ class AdminCarrerasScreen extends StatefulWidget {
 class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
   final CarreraService _carreraService = CarreraService();
   final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _semestresController = TextEditingController();
 
   List<Carrera> _carreras = [];
   bool _loading = false;
@@ -26,6 +27,7 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
   @override
   void dispose() {
     _nombreController.dispose();
+    _semestresController.dispose();
     super.dispose();
   }
 
@@ -52,18 +54,36 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
   void _showForm([Carrera? carrera]) {
     _carreraEditando = carrera;
     _nombreController.text = carrera?.nombre ?? '';
+    _semestresController.text = carrera?.semestres?.toString() ?? '';
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(carrera == null ? 'Nueva Carrera' : 'Editar Carrera'),
-        content: TextField(
-          controller: _nombreController,
-          decoration: const InputDecoration(
-            labelText: 'Nombre de la Carrera',
-            border: OutlineInputBorder(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nombreController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre de la Carrera',
+                  border: OutlineInputBorder(),
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _semestresController,
+                decoration: const InputDecoration(
+                  labelText: 'Duración (Semestres)',
+                  border: OutlineInputBorder(),
+                  hintText: 'Ej: 4, 8, 9, etc.',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
           ),
-          autofocus: true,
         ),
         actions: [
           TextButton(
@@ -84,19 +104,44 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
 
   Future<void> _guardarCarrera() async {
     final nombre = _nombreController.text.trim();
+    final semestresStr = _semestresController.text.trim();
+
     if (nombre.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('El nombre es requerido')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El nombre es requerido')),
+        );
+      }
+      return;
+    }
+
+    if (semestresStr.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('La duración en semestres es requerida')),
+        );
+      }
+      return;
+    }
+
+    final semestres = int.tryParse(semestresStr);
+    if (semestres == null || semestres < 1) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('La duración debe ser un número positivo')),
+        );
+      }
       return;
     }
 
     setState(() => _loading = true);
     try {
       if (_carreraEditando == null) {
-        await _carreraService.create(nombre);
+        await _carreraService.create(nombre, semestres);
       } else {
-        await _carreraService.update(_carreraEditando!.id!, nombre);
+        await _carreraService.update(_carreraEditando!.id!, nombre, semestres);
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -203,6 +248,10 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold))),
                               DataColumn(
+                                  label: Text('Duración (Semestres)',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
                                   label: Text('Acciones',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold))),
@@ -210,6 +259,8 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
                             rows: _carreras.map((carrera) {
                               return DataRow(cells: [
                                 DataCell(Text(carrera.nombre)),
+                                DataCell(Text(
+                                    carrera.semestres?.toString() ?? 'N/A')),
                                 DataCell(
                                   Row(
                                     mainAxisSize: MainAxisSize.min,

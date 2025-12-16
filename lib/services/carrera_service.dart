@@ -26,13 +26,13 @@ class CarreraService {
     }
   }
 
-  Future<Carrera> create(String name) async {
+  Future<Carrera> create(String nombre, int semestres) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.post(
         Uri.parse('${Environment.apiUrl}/carreras'),
         headers: headers,
-        body: jsonEncode({'name': name}),
+        body: jsonEncode({'nombre': nombre, 'semestres': semestres}),
       );
 
       final result = jsonDecode(response.body);
@@ -45,13 +45,13 @@ class CarreraService {
     }
   }
 
-  Future<Carrera> update(int id, String name) async {
+  Future<Carrera> update(int id, String nombre, int semestres) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.put(
         Uri.parse('${Environment.apiUrl}/carreras/$id'),
         headers: headers,
-        body: jsonEncode({'name': name}),
+        body: jsonEncode({'nombre': nombre, 'semestres': semestres}),
       );
 
       final result = jsonDecode(response.body);

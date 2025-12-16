@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/materia_service.dart';
+import '../../services/carrera_service.dart';
 import '../../models/materia.dart';
+import '../../models/carrera.dart';
 
 class AdminMateriasScreen extends StatefulWidget {
   const AdminMateriasScreen({super.key});
@@ -11,16 +13,27 @@ class AdminMateriasScreen extends StatefulWidget {
 
 class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
   final MateriaService _materiaService = MateriaService();
+  final CarreraService _carreraService = CarreraService();
   final TextEditingController _nombreController = TextEditingController();
 
   List<Materia> _materias = [];
+  List<Carrera> _carreras = [];
   bool _loading = false;
   Materia? _materiaEditando;
+  int? _selectedCarreraId;
+  int? _selectedSemestre;
 
   @override
   void initState() {
     super.initState();
-    _loadMaterias();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await Future.wait([
+      _loadMaterias(),
+      _loadCarreras(),
+    ]);
   }
 
   @override
@@ -49,54 +62,172 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
     }
   }
 
+  Future<void> _loadCarreras() async {
+    try {
+      final carreras = await _carreraService.getAll();
+      if (mounted) {
+        setState(() {
+          _carreras = carreras;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar carreras: $e')),
+        );
+      }
+    }
+  }
+
   void _showForm([Materia? materia]) {
     _materiaEditando = materia;
     _nombreController.text = materia?.name ?? '';
+    _selectedCarreraId = materia?.carreraId;
+    _selectedSemestre = materia?.semestre;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(materia == null ? 'Nueva Materia' : 'Editar Materia'),
-        content: TextField(
-          controller: _nombreController,
-          decoration: const InputDecoration(
-            labelText: 'Nombre de la Materia',
-            border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(materia == null ? 'Nueva Materia' : 'Editar Materia'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _nombreController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre de la Materia',
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<int?>(
+                  initialValue: _selectedCarreraId,
+                  decoration: const InputDecoration(
+                    labelText: 'Carrera',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _carreras.map((carrera) {
+                    return DropdownMenuItem<int?>(
+                      value: carrera.id,
+                      child: Text(carrera.nombre),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCarreraId = value;
+                      _selectedSemestre = null;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                if (_selectedCarreraId != null)
+                  DropdownButtonFormField<int?>(
+                    initialValue: _selectedSemestre,
+                    decoration: const InputDecoration(
+                      labelText: 'Semestre',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _buildSemestreItems(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedSemestre = value;
+                      });
+                    },
+                  )
+                else
+                  const Text(
+                    'Selecciona una carrera primero',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+              ],
+            ),
           ),
-          autofocus: true,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _guardarMateria();
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _guardarMateria();
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<int?>> _buildSemestreItems() {
+    final carrera = _carreras.firstWhere(
+      (c) => c.id == _selectedCarreraId,
+      orElse: () => Carrera(
+        id: 0,
+        nombre: '',
+        semestres: 0,
+      ),
+    );
+
+    final semestres = carrera.semestres ?? 0;
+    return List.generate(
+      semestres,
+      (index) => DropdownMenuItem<int?>(
+        value: index + 1,
+        child: Text('${index + 1}'),
       ),
     );
   }
 
   Future<void> _guardarMateria() async {
     final nombre = _nombreController.text.trim();
+
     if (nombre.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('El nombre es requerido')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El nombre es requerido')),
+        );
+      }
+      return;
+    }
+
+    if (_selectedCarreraId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('La carrera es requerida')),
+        );
+      }
+      return;
+    }
+
+    if (_selectedSemestre == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El semestre es requerido')),
+        );
+      }
       return;
     }
 
     setState(() => _loading = true);
     try {
       if (_materiaEditando == null) {
-        await _materiaService.create(nombre);
+        await _materiaService.create(
+          nombre,
+          _selectedSemestre!,
+          _selectedCarreraId,
+        );
       } else {
-        await _materiaService.update(_materiaEditando!.id!, nombre);
+        await _materiaService.update(
+          _materiaEditando!.id!,
+          nombre,
+          _selectedSemestre!,
+          _selectedCarreraId,
+        );
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -202,13 +333,31 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold))),
                               DataColumn(
+                                  label: Text('Carrera',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Semestre',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
                                   label: Text('Acciones',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold))),
                             ],
                             rows: _materias.map((materia) {
+                              final carrera = _carreras.firstWhere(
+                                (c) => c.id == materia.carreraId,
+                                orElse: () => Carrera(
+                                  id: 0,
+                                  nombre: 'Sin carrera',
+                                ),
+                              );
                               return DataRow(cells: [
                                 DataCell(Text(materia.name)),
+                                DataCell(Text(carrera.nombre)),
+                                DataCell(Text(
+                                    materia.semestre?.toString() ?? 'N/A')),
                                 DataCell(
                                   Row(
                                     mainAxisSize: MainAxisSize.min,

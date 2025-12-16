@@ -26,13 +26,17 @@ class MateriaService {
     }
   }
 
-  Future<Materia> create(String name) async {
+  Future<Materia> create(String name, int semestre, [int? carreraId]) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.post(
         Uri.parse('${Environment.apiUrl}/materias'),
         headers: headers,
-        body: jsonEncode({'name': name}),
+        body: jsonEncode({
+          'name': name,
+          'semestre': semestre,
+          if (carreraId != null) 'carrera_id': carreraId,
+        }),
       );
 
       final result = jsonDecode(response.body);
@@ -45,13 +49,18 @@ class MateriaService {
     }
   }
 
-  Future<Materia> update(int id, String name) async {
+  Future<Materia> update(int id, String name, int semestre,
+      [int? carreraId]) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.put(
         Uri.parse('${Environment.apiUrl}/materias/$id'),
         headers: headers,
-        body: jsonEncode({'name': name}),
+        body: jsonEncode({
+          'name': name,
+          'semestre': semestre,
+          if (carreraId != null) 'carrera_id': carreraId,
+        }),
       );
 
       final result = jsonDecode(response.body);
