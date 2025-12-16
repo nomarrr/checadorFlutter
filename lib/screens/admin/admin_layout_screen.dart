@@ -13,7 +13,7 @@ import 'admin_consulta_asistencias_screen.dart';
 
 class AdminLayoutScreen extends StatefulWidget {
   final String currentRoute;
-  
+
   const AdminLayoutScreen({
     super.key,
     required this.currentRoute,
@@ -54,7 +54,8 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
   }
 
   void _updateSelectedIndex() {
-    final index = _routes.indexWhere((route) => widget.currentRoute.contains(route));
+    final index =
+        _routes.indexWhere((route) => widget.currentRoute.contains(route));
     if (index != -1) {
       setState(() {
         _selectedIndex = index;
@@ -145,4 +146,3 @@ class _AdminLayoutScreenState extends State<AdminLayoutScreen> {
     );
   }
 }
-

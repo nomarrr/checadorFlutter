@@ -19,12 +19,12 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
   final HorarioService _horarioService = HorarioService();
   final GrupoService _grupoService = GrupoService();
   final AsistenciaService _asistenciaService = AsistenciaService();
-  
+
   List<HorarioMaestro> _horarios = [];
   Grupo? _miGrupo;
   bool _isLoading = true;
   String _selectedDate = '';
-  Map<int, String> _asistenciasMap = {}; // horarioId -> estado asistencia
+  final Map<int, String> _asistenciasMap = {}; // horarioId -> estado asistencia
 
   void refresh() {
     _loadHorarios();
@@ -42,7 +42,7 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
 
   Future<void> _loadHorarios() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -50,7 +50,7 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final user = authProvider.currentUser;
-      
+
       if (user?.id == null) {
         throw Exception('Usuario no encontrado');
       }
@@ -64,9 +64,8 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
 
       // Obtener horarios del grupo
       final todosHorarios = await _horarioService.getAll();
-      final horariosGrupo = todosHorarios.where(
-        (h) => h.grupoId == _miGrupo!.id
-      ).toList();
+      final horariosGrupo =
+          todosHorarios.where((h) => h.grupoId == _miGrupo!.id).toList();
 
       // Obtener asistencias del día seleccionado
       final asistencias = await _asistenciaService.getAsistenciasJefe(
@@ -100,9 +99,7 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
   }
 
   Future<void> _registrarAsistencia(
-    HorarioMaestro horario, 
-    TipoAsistencia tipo
-  ) async {
+      HorarioMaestro horario, TipoAsistencia tipo) async {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final user = authProvider.currentUser;
@@ -334,7 +331,7 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
                                       ),
                                     ],
                                   ),
-                                  
+
                                   // Estado actual
                                   if (asistenciaActual != null) ...[
                                     const SizedBox(height: 8),
@@ -344,17 +341,20 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
                                         vertical: 6,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: _getColorForAsistencia(asistenciaActual)
-                                            .withOpacity(0.2),
+                                        color: _getColorForAsistencia(
+                                                asistenciaActual)
+                                            .withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
-                                            _getIconForAsistencia(asistenciaActual),
+                                            _getIconForAsistencia(
+                                                asistenciaActual),
                                             size: 16,
-                                            color: _getColorForAsistencia(asistenciaActual),
+                                            color: _getColorForAsistencia(
+                                                asistenciaActual),
                                           ),
                                           const SizedBox(width: 6),
                                           Text(
@@ -362,7 +362,8 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w500,
-                                              color: _getColorForAsistencia(asistenciaActual),
+                                              color: _getColorForAsistencia(
+                                                  asistenciaActual),
                                             ),
                                           ),
                                         ],
@@ -372,7 +373,7 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
 
                                   const SizedBox(height: 12),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Botones de asistencia
                                   const SizedBox(height: 8),
                                   Row(
@@ -474,4 +475,3 @@ class _JefeHorarioScreenState extends State<JefeHorarioScreen> {
     }
   }
 }
-

@@ -5,7 +5,7 @@ import 'alumno_horario_screen.dart';
 
 class AlumnoLayoutScreen extends StatefulWidget {
   final String currentRoute;
-  
+
   const AlumnoLayoutScreen({
     super.key,
     required this.currentRoute,
@@ -39,7 +39,8 @@ class _AlumnoLayoutScreenState extends State<AlumnoLayoutScreen> {
   }
 
   void _updateSelectedIndex() {
-    final index = _routes.indexWhere((route) => widget.currentRoute.contains(route));
+    final index =
+        _routes.indexWhere((route) => widget.currentRoute.contains(route));
     if (index != -1) {
       setState(() {
         _selectedIndex = index;
@@ -110,4 +111,3 @@ class _AlumnoLayoutScreenState extends State<AlumnoLayoutScreen> {
     );
   }
 }
-

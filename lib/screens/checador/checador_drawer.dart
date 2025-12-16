@@ -14,7 +14,10 @@ class ChecadorDrawer extends StatelessWidget {
   });
 
   final List<MenuItem> _menuItems = const [
-    MenuItem(text: 'Control de Asistencia', icon: Icons.checklist, route: '/checador/control'),
+    MenuItem(
+        text: 'Control de Asistencia',
+        icon: Icons.checklist,
+        route: '/checador/control'),
   ];
 
   @override
@@ -41,10 +44,10 @@ class ChecadorDrawer extends StatelessWidget {
             // Header
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -96,9 +99,10 @@ class ChecadorDrawer extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = _menuItems[index];
                   final isSelected = selectedIndex == index;
-                  
+
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -135,7 +139,7 @@ class ChecadorDrawer extends StatelessWidget {
                                 ? [
                                     BoxShadow(
                                       color: const Color(0xFF4285F4)
-                                          .withOpacity(0.3),
+                                          .withValues(alpha: 0.3),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -175,7 +179,7 @@ class ChecadorDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -189,7 +193,8 @@ class ChecadorDrawer extends StatelessWidget {
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('Cerrar Sesión'),
-                        content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+                        content: const Text(
+                            '¿Estás seguro que deseas cerrar sesión?'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
@@ -202,7 +207,7 @@ class ChecadorDrawer extends StatelessWidget {
                         ],
                       ),
                     );
-                    
+
                     if (confirmar == true && context.mounted) {
                       await authProvider.logout();
                       if (context.mounted) {
@@ -216,15 +221,15 @@ class ChecadorDrawer extends StatelessWidget {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.logout,
                           color: Colors.white70,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
+                        SizedBox(width: 12),
+                        Text(
                           'Cerrar Sesión',
                           style: TextStyle(
                             color: Colors.white70,
@@ -256,5 +261,3 @@ class MenuItem {
     required this.route,
   });
 }
-
-

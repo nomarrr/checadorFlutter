@@ -87,21 +87,40 @@ class HorarioService {
   }
 
   // Crear horario
-  Future<HorarioMaestro> create(HorarioMaestro horario) async {
+  Future<HorarioMaestro> create(Map<String, dynamic> data) async {
     try {
+      print('=== CREATE HORARIO ===');
+      print('Data enviado: $data');
+
       final headers = await _authService.getAuthHeaders();
+      print('Headers: $headers');
+
+      final body = jsonEncode(data);
+      print('Body JSON: $body');
+
       final response = await http.post(
         Uri.parse('${Environment.apiUrl}/horarios'),
         headers: headers,
-        body: jsonEncode(horario.toJson()),
+        body: body,
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       final result = jsonDecode(response.body);
-      if (response.statusCode == 200 && result['success']) {
+
+      // Aceptar tanto 200 como 201 (Created)
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          result['success']) {
         return HorarioMaestro.fromJson(result['data']);
       }
-      throw Exception(result['error'] ?? 'Error al crear horario');
+
+      final errorMsg =
+          result['error'] ?? result['message'] ?? 'Error al crear horario';
+      print('Error message: $errorMsg');
+      throw Exception(errorMsg);
     } catch (e) {
+      print('Exception en create: $e');
       throw Exception(e.toString());
     }
   }
@@ -140,36 +159,38 @@ class HorarioService {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         final result = jsonDecode(response.body);
-        
+
         // Detectar error de foreign key constraint
-        if (result['error'] != null && 
+        if (result['error'] != null &&
             result['error'].toString().contains('foreign key constraint')) {
           throw Exception(
-            'No se puede eliminar este horario porque tiene registros de asistencia asociados. '
-            'Por favor, elimine primero las asistencias relacionadas o contacte al administrador del sistema.'
-          );
+              'No se puede eliminar este horario porque tiene registros de asistencia asociados. '
+              'Por favor, elimine primero las asistencias relacionadas o contacte al administrador del sistema.');
         }
-        
-        throw Exception(result['message'] ?? result['error'] ?? 'Error al eliminar horario');
+
+        throw Exception(result['message'] ??
+            result['error'] ??
+            'Error al eliminar horario');
       }
     } catch (e) {
       print('Error en delete: $e');
-      
+
       // Si ya es un Exception con nuestro mensaje, re-lanzarlo tal cual
       if (e is Exception && e.toString().contains('registros de asistencia')) {
         rethrow;
       }
-      
+
       throw Exception(e.toString());
     }
   }
 
   // Buscar horarios con filtros
-  Future<List<HorarioMaestro>> searchHorarios(Map<String, dynamic> filters) async {
+  Future<List<HorarioMaestro>> searchHorarios(
+      Map<String, dynamic> filters) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final params = <String, String>{};
-      
+
       if (filters['carrera_id'] != null) {
         params['carrera_id'] = filters['carrera_id'].toString();
       }
@@ -196,4 +217,3 @@ class HorarioService {
     }
   }
 }
-

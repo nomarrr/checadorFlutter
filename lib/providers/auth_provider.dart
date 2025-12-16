@@ -55,4 +55,3 @@ class AuthProvider with ChangeNotifier {
 
   String? get userRole => _currentUser?.role;
 }
-

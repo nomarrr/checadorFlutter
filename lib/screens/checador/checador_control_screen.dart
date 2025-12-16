@@ -21,27 +21,38 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
   final AsistenciaService _asistenciaService = AsistenciaService();
   final EdificioService _edificioService = EdificioService();
   final CarreraService _carreraService = CarreraService();
-  
+
   List<HorarioMaestro> _horarios = [];
   List<dynamic> _edificios = [];
   List<Carrera> _carreras = [];
   bool _isLoading = true;
   String _selectedDate = '';
-  
+
   // Filtros en orden: Hora → Carrera → Edificio
   String? _selectedHora;
   int? _selectedCarrera;
   int? _selectedEdificio;
-  
+
   String _diaActual = '';
   final Map<int, String> _asistenciasMap = {}; // horarioId -> estado
-  
+
   // Horas disponibles (7am a 7pm)
   final List<String> _horasDisponibles = [
-    '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
-    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
+    '07:00',
+    '08:00',
+    '09:00',
+    '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
+    '18:00',
+    '19:00'
   ];
-  
+
   final Map<int, String> _diasMap = {
     1: 'Lunes',
     2: 'Martes',
@@ -68,7 +79,7 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
   void _updateDiaActual() {
     final date = DateTime.parse(_selectedDate);
     final diaSemana = date.weekday;
-    
+
     if (diaSemana == 6 || diaSemana == 7) {
       setState(() {
         _diaActual = '';
@@ -82,7 +93,7 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
       );
       return;
     }
-    
+
     setState(() {
       _diaActual = _diasMap[diaSemana] ?? '';
     });
@@ -114,16 +125,18 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
 
   Future<void> _loadHorarios() async {
     if (_diaActual.isEmpty) return;
-    
+
     // NO cargar si no hay ningún filtro seleccionado
-    if (_selectedHora == null && _selectedCarrera == null && _selectedEdificio == null) {
+    if (_selectedHora == null &&
+        _selectedCarrera == null &&
+        _selectedEdificio == null) {
       setState(() {
         _horarios = [];
         _isLoading = false;
       });
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -131,35 +144,37 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
     try {
       // Obtener todos los horarios
       final todosHorarios = await _horarioService.getAll();
-      
+
       print('📊 Total de horarios en BD: ${todosHorarios.length}');
-      
+
       // Filtrar por día
       var horariosFiltrados = todosHorarios.where((h) {
         if (h.dias == null) return false;
-        
+
         // Normalizar: quitar espacios, comas, y convertir a minúsculas
-        final diasLista = h.dias!.toLowerCase()
+        final diasLista = h.dias!
+            .toLowerCase()
             .split(',')
             .map((d) => d.trim().replaceAll(' ', ''))
             .toList();
-        
-        final diaActualNormalizado = _diaActual.toLowerCase().replaceAll(' ', '');
-        
+
+        final diaActualNormalizado =
+            _diaActual.toLowerCase().replaceAll(' ', '');
+
         final encontrado = diasLista.any((dia) => dia == diaActualNormalizado);
-        
+
         return encontrado;
       }).toList();
-      
+
       print('📅 Horarios del día $_diaActual: ${horariosFiltrados.length}');
       if (horariosFiltrados.isEmpty) {
         print('⚠️  No hay horarios para $_diaActual');
-      };
-      
+      }
+
       // FILTRO 1: Por Hora (si está seleccionada)
       if (_selectedHora != null) {
         print('🕐 Filtrando por hora: $_selectedHora');
-        
+
         // Debug: ver todas las horas disponibles
         final horasEncontradas = horariosFiltrados
             .where((h) => h.horaInicio != null)
@@ -171,7 +186,7 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
             .toSet()
             .toList();
         print('   Horas disponibles en horarios: $horasEncontradas');
-        
+
         horariosFiltrados = horariosFiltrados.where((h) {
           if (h.horaInicio == null) return false;
           final hora = h.horaInicio!;
@@ -179,60 +194,63 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
           final horaFormateada = hora.length >= 5 ? hora.substring(0, 5) : hora;
           final coincide = horaFormateada == _selectedHora;
           if (coincide) {
-            print('   ✅ Coincidencia: ${h.nombreMateria} a las $horaFormateada');
+            print(
+                '   ✅ Coincidencia: ${h.nombreMateria} a las $horaFormateada');
           }
           return coincide;
         }).toList();
-        
+
         print('   Resultado: ${horariosFiltrados.length} horarios');
       }
-      
+
       // FILTRO 2: Por Carrera (si está seleccionada)
       if (_selectedCarrera != null) {
         print('🎓 Filtrando por carrera ID: $_selectedCarrera');
-        
+
         final carrerasEncontradas = horariosFiltrados
             .where((h) => h.grupo != null && h.grupo!['carrera_id'] != null)
             .map((h) => h.grupo!['carrera_id'])
             .toSet()
             .toList();
         print('   Carreras disponibles: $carrerasEncontradas');
-        
+
         horariosFiltrados = horariosFiltrados.where((h) {
           final carreraId = h.grupo?['carrera_id'];
           final coincide = carreraId == _selectedCarrera;
           if (coincide) {
-            print('   ✅ Coincidencia: ${h.nombreMateria} de carrera $carreraId');
+            print(
+                '   ✅ Coincidencia: ${h.nombreMateria} de carrera $carreraId');
           }
           return coincide;
         }).toList();
-        
+
         print('   Resultado: ${horariosFiltrados.length} horarios');
       }
-      
+
       // FILTRO 3: Por Edificio (si está seleccionado)
       if (_selectedEdificio != null) {
         print('🏢 Filtrando por edificio ID: $_selectedEdificio');
-        
+
         final edificiosEncontrados = horariosFiltrados
             .where((h) => h.grupo?['aula']?['edificio_id'] != null)
             .map((h) => h.grupo!['aula']['edificio_id'])
             .toSet()
             .toList();
         print('   Edificios disponibles: $edificiosEncontrados');
-        
+
         horariosFiltrados = horariosFiltrados.where((h) {
           final edificioId = h.grupo?['aula']?['edificio_id'];
           final coincide = edificioId == _selectedEdificio;
           if (coincide) {
-            print('   ✅ Coincidencia: ${h.nombreMateria} en edificio $edificioId');
+            print(
+                '   ✅ Coincidencia: ${h.nombreMateria} en edificio $edificioId');
           }
           return coincide;
         }).toList();
-        
+
         print('   Resultado: ${horariosFiltrados.length} horarios');
       }
-      
+
       // Cargar asistencias existentes para la fecha seleccionada
       _asistenciasMap.clear();
       for (var horario in horariosFiltrados) {
@@ -250,13 +268,14 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
           }
         }
       }
-      
+
       setState(() {
         _horarios = horariosFiltrados;
         _isLoading = false;
       });
-      
-      print('✅ RESULTADO FINAL: ${horariosFiltrados.length} horarios mostrados');
+
+      print(
+          '✅ RESULTADO FINAL: ${horariosFiltrados.length} horarios mostrados');
       print('═══════════════════════════════════════════════════\n');
     } catch (e) {
       print('❌ ERROR: $e');
@@ -300,9 +319,7 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
   }
 
   Future<void> _registrarAsistencia(
-    HorarioMaestro horario, 
-    TipoAsistencia tipo
-  ) async {
+      HorarioMaestro horario, TipoAsistencia tipo) async {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final user = authProvider.currentUser;
@@ -413,11 +430,11 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),
-                
+
                 // FILTROS
                 const Text(
                   'Filtros',
@@ -427,10 +444,10 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // FILTRO 1: Hora
                 DropdownButtonFormField<String>(
-                  value: _selectedHora,
+                  initialValue: _selectedHora,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.access_time),
                     border: OutlineInputBorder(
@@ -455,12 +472,12 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                   ],
                   onChanged: _onHoraChange,
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // FILTRO 2: Carrera (habilitado solo si hay hora seleccionada o si no)
                 DropdownButtonFormField<int>(
-                  value: _selectedCarrera,
+                  initialValue: _selectedCarrera,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.school),
                     border: OutlineInputBorder(
@@ -485,12 +502,12 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                   ],
                   onChanged: _onCarreraChange,
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // FILTRO 3: Edificio
                 DropdownButtonFormField<int>(
-                  value: _selectedEdificio,
+                  initialValue: _selectedEdificio,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.business),
                     border: OutlineInputBorder(
@@ -509,16 +526,17 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                     ..._edificios.map((edificio) {
                       return DropdownMenuItem<int>(
                         value: edificio['id'] as int?,
-                        child: Text(edificio['nombre']?.toString() ?? 'Sin nombre'),
+                        child: Text(
+                            edificio['nombre']?.toString() ?? 'Sin nombre'),
                       );
                     }),
                   ],
                   onChanged: _onEdificioChange,
                 ),
-                
+
                 // Botón para limpiar filtros
-                if (_selectedHora != null || 
-                    _selectedCarrera != null || 
+                if (_selectedHora != null ||
+                    _selectedCarrera != null ||
                     _selectedEdificio != null) ...[
                   const SizedBox(height: 12),
                   SizedBox(
@@ -544,7 +562,7 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
             ),
           ),
         ),
-        
+
         // Lista de horarios
         Expanded(
           child: _isLoading
@@ -575,7 +593,9 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                         ],
                       ),
                     )
-                  : (_selectedHora == null && _selectedCarrera == null && _selectedEdificio == null)
+                  : (_selectedHora == null &&
+                          _selectedCarrera == null &&
+                          _selectedEdificio == null)
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -613,8 +633,7 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                                   Text(
                                     'No se encontraron horarios',
                                     style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[600]),
+                                        fontSize: 18, color: Colors.grey[600]),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -627,157 +646,170 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
                                 ],
                               ),
                             )
-                      : RefreshIndicator(
-                          onRefresh: _loadHorarios,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: _horarios.length,
-                            itemBuilder: (context, index) {
-                              final horario = _horarios[index];
-                              final asistenciaActual = horario.id != null 
-                                  ? _asistenciasMap[horario.id!] 
-                                  : null;
-                              
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                elevation: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Header con ícono y info
-                                      Row(
+                          : RefreshIndicator(
+                              onRefresh: _loadHorarios,
+                              child: ListView.builder(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: _horarios.length,
+                                itemBuilder: (context, index) {
+                                  final horario = _horarios[index];
+                                  final asistenciaActual = horario.id != null
+                                      ? _asistenciasMap[horario.id!]
+                                      : null;
+
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    elevation: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          CircleAvatar(
-                                            radius: 20,
-                                            backgroundColor: Colors.blue.shade100,
-                                            child: const Icon(Icons.school,
-                                                color: Colors.blue),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  horario.nombreMateria,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  'Profesor: ${horario.nombreMaestro}',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[700],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'Grupo: ${horario.nombreGrupo}',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[700],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'Aula: ${horario.nombreAula} - ${horario.nombreEdificio}',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'Hora: ${horario.horaInicio ?? "N/A"} - ${horario.horaFin ?? "N/A"}',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      
-                                      // Estado actual
-                                      if (asistenciaActual != null) ...[
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: _getColorForAsistencia(asistenciaActual)
-                                                .withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
+                                          // Header con ícono y info
+                                          Row(
                                             children: [
-                                              Icon(
-                                                _getIconForAsistencia(asistenciaActual),
-                                                size: 16,
-                                                color: _getColorForAsistencia(asistenciaActual),
+                                              CircleAvatar(
+                                                radius: 20,
+                                                backgroundColor:
+                                                    Colors.blue.shade100,
+                                                child: const Icon(Icons.school,
+                                                    color: Colors.blue),
                                               ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                'Estado: $asistenciaActual',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: _getColorForAsistencia(asistenciaActual),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      horario.nombreMateria,
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      'Profesor: ${horario.nombreMaestro}',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey[700],
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      'Grupo: ${horario.nombreGrupo}',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey[700],
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      'Aula: ${horario.nombreAula} - ${horario.nombreEdificio}',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      'Hora: ${horario.horaInicio ?? "N/A"} - ${horario.horaFin ?? "N/A"}',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      ],
 
-                                      const SizedBox(height: 12),
-                                      
-                                      // Botones de asistencia
-                                      Row(
-                                        children: [
-                                          _buildAsistenciaButton(
-                                            'Presente',
-                                            Colors.green,
-                                            Icons.check_circle,
-                                            TipoAsistencia.presente,
-                                            horario,
-                                            asistenciaActual == 'Presente',
-                                          ),
-                                          const SizedBox(width: 8),
-                                          _buildAsistenciaButton(
-                                            'Falta',
-                                            Colors.red,
-                                            Icons.cancel,
-                                            TipoAsistencia.falta,
-                                            horario,
-                                            asistenciaActual == 'Falta',
-                                          ),
-                                          const SizedBox(width: 8),
-                                          _buildAsistenciaButton(
-                                            'Retardo',
-                                            Colors.orange,
-                                            Icons.access_time,
-                                            TipoAsistencia.retardado,
-                                            horario,
-                                            asistenciaActual == 'Retardo',
+                                          // Estado actual
+                                          if (asistenciaActual != null) ...[
+                                            const SizedBox(height: 8),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: _getColorForAsistencia(
+                                                        asistenciaActual)
+                                                    .withValues(alpha: 0.2),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    _getIconForAsistencia(
+                                                        asistenciaActual),
+                                                    size: 16,
+                                                    color:
+                                                        _getColorForAsistencia(
+                                                            asistenciaActual),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Estado: $asistenciaActual',
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          _getColorForAsistencia(
+                                                              asistenciaActual),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+
+                                          const SizedBox(height: 12),
+
+                                          // Botones de asistencia
+                                          Row(
+                                            children: [
+                                              _buildAsistenciaButton(
+                                                'Presente',
+                                                Colors.green,
+                                                Icons.check_circle,
+                                                TipoAsistencia.presente,
+                                                horario,
+                                                asistenciaActual == 'Presente',
+                                              ),
+                                              const SizedBox(width: 8),
+                                              _buildAsistenciaButton(
+                                                'Falta',
+                                                Colors.red,
+                                                Icons.cancel,
+                                                TipoAsistencia.falta,
+                                                horario,
+                                                asistenciaActual == 'Falta',
+                                              ),
+                                              const SizedBox(width: 8),
+                                              _buildAsistenciaButton(
+                                                'Retardo',
+                                                Colors.orange,
+                                                Icons.access_time,
+                                                TipoAsistencia.retardado,
+                                                horario,
+                                                asistenciaActual == 'Retardo',
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
         ),
       ],
     );
@@ -840,4 +872,3 @@ class _ChecadorControlScreenState extends State<ChecadorControlScreen> {
     }
   }
 }
-

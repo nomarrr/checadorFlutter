@@ -14,10 +14,12 @@ class AdminGestionHorariosScreen extends StatefulWidget {
   const AdminGestionHorariosScreen({super.key});
 
   @override
-  State<AdminGestionHorariosScreen> createState() => _AdminGestionHorariosScreenState();
+  State<AdminGestionHorariosScreen> createState() =>
+      _AdminGestionHorariosScreenState();
 }
 
-class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen> {
+class _AdminGestionHorariosScreenState
+    extends State<AdminGestionHorariosScreen> {
   final HorarioService _horarioService = HorarioService();
   final UsuarioService _usuarioService = UsuarioService();
   final MateriaService _materiaService = MateriaService();
@@ -42,8 +44,6 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
   List<String> _selectedDias = [];
   TimeOfDay? _horaInicio;
   TimeOfDay? _horaFin;
-  String _ampmInicio = 'AM';
-  String _ampmFin = 'AM';
 
   // Filtros
   String? _filtroCarrera;
@@ -65,6 +65,7 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     try {
       final results = await Future.wait([
@@ -75,6 +76,7 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
         _horarioService.getAll(),
       ]);
 
+      if (!mounted) return;
       setState(() {
         _maestros = results[0] as List<Usuario>;
         _materias = results[1] as List<Materia>;
@@ -84,6 +86,7 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
         _loading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,22 +122,21 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
         _selectedMaestro = horario.maestroId?.toString();
         _selectedMateria = horario.materiaId?.toString();
         _selectedGrupo = horario.grupoId?.toString();
-        _selectedDias = horario.dias?.split(',').map((d) => d.trim()).toList() ?? [];
-        
+        _selectedDias =
+            horario.dias?.split(',').map((d) => d.trim()).toList() ?? [];
+
         if (horario.horaInicio != null) {
           final parts = horario.horaInicio!.split(':');
           final hour = int.parse(parts[0]);
           final minute = int.parse(parts[1]);
           _horaInicio = TimeOfDay(hour: hour, minute: minute);
-          _ampmInicio = hour >= 12 ? 'PM' : 'AM';
         }
-        
+
         if (horario.horaFin != null) {
           final parts = horario.horaFin!.split(':');
           final hour = int.parse(parts[0]);
           final minute = int.parse(parts[1]);
           _horaFin = TimeOfDay(hour: hour, minute: minute);
-          _ampmFin = hour >= 12 ? 'PM' : 'AM';
         }
       });
     } else {
@@ -153,8 +155,6 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
       _selectedDias = [];
       _horaInicio = null;
       _horaFin = null;
-      _ampmInicio = 'AM';
-      _ampmFin = 'AM';
     });
   }
 
@@ -163,14 +163,8 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
     _clearForm();
   }
 
-  String _convertTo24Hour(TimeOfDay time, String ampm) {
-    int hour = time.hour;
-    if (ampm == 'PM' && hour != 12) {
-      hour += 12;
-    } else if (ampm == 'AM' && hour == 12) {
-      hour = 0;
-    }
-    return '${hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  String _formatTimeOfDay(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
   Future<void> _crearHorario() async {
@@ -186,8 +180,16 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
       return;
     }
 
-    final horaInicio24 = _convertTo24Hour(_horaInicio!, _ampmInicio);
-    final horaFin24 = _convertTo24Hour(_horaFin!, _ampmFin);
+    final horaInicio24 = _formatTimeOfDay(_horaInicio!);
+    final horaFin24 = _formatTimeOfDay(_horaFin!);
+
+    print('=== DEBUG CREAR HORARIO ===');
+    print('Maestro: $_selectedMaestro');
+    print('Materia: $_selectedMateria');
+    print('Grupo: $_selectedGrupo');
+    print('Días: $_selectedDias');
+    print('Hora Inicio (24h): $horaInicio24');
+    print('Hora Fin (24h): $horaFin24');
 
     // Validar duración
     final inicioMinutos = _horaInicio!.hour * 60 + _horaInicio!.minute;
@@ -196,18 +198,23 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
 
     if (duracion <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La hora de fin debe ser mayor que la hora de inicio')),
+        const SnackBar(
+            content:
+                Text('La hora de fin debe ser mayor que la hora de inicio')),
       );
       return;
     }
 
     if (duracion < 50) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La duración de la clase debe ser de al menos 50 minutos')),
+        const SnackBar(
+            content: Text(
+                'La duración de la clase debe ser de al menos 50 minutos')),
       );
       return;
     }
 
+    if (!mounted) return;
     setState(() => _loading = true);
 
     try {
@@ -220,26 +227,37 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
         'hora_fin': '$horaFin24:00',
       };
 
+      print('Horario data: $horarioData');
+
       if (_isEditing && _selectedHorario?.id != null) {
         await _horarioService.update(_selectedHorario!.id!, horarioData);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Horario actualizado correctamente')),
         );
       } else {
-        await _horarioService.create(HorarioMaestro.fromJson(horarioData));
+        await _horarioService.create(horarioData);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Horario creado correctamente')),
         );
       }
 
       await _loadData();
-      _closeForm();
+      if (mounted) {
+        _closeForm();
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      print('Error en _crearHorario: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -248,7 +266,7 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
     print('Horario ID: ${horario.id}');
     print('Maestro ID: ${horario.maestroId}');
     print('Materia ID: ${horario.materiaId}');
-    
+
     try {
       print('Mostrando diálogo de confirmación...');
       final confirm = await showDialog<bool>(
@@ -268,7 +286,8 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+              child:
+                  const Text('Eliminar', style: TextStyle(color: Colors.red)),
             ),
           ],
         ),
@@ -285,6 +304,7 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
         }
 
         print('Intentando eliminar horario con ID: ${horario.id}');
+        if (!mounted) return;
         setState(() => _loading = true);
         try {
           await _horarioService.delete(horario.id!);
@@ -319,31 +339,36 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
 
   String _getMaestroNombre(int? id) {
     if (id == null) return 'N/A';
-    final maestro = _maestros.firstWhere((m) => m.id == id, orElse: () => Usuario(name: 'N/A'));
+    final maestro = _maestros.firstWhere((m) => m.id == id,
+        orElse: () => Usuario(name: 'N/A'));
     return maestro.name;
   }
 
   String _getMateriaNombre(int? id) {
     if (id == null) return 'N/A';
-    final materia = _materias.firstWhere((m) => m.id == id, orElse: () => Materia(name: 'N/A'));
+    final materia = _materias.firstWhere((m) => m.id == id,
+        orElse: () => Materia(name: 'N/A'));
     return materia.name;
   }
 
   String _getGrupoNombre(int? id) {
     if (id == null) return 'N/A';
-    final grupo = _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
+    final grupo =
+        _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
     return grupo.name;
   }
 
   String _getEdificioNombre(int? id) {
     if (id == null) return 'N/A';
-    final grupo = _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
+    final grupo =
+        _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
     return grupo.nombreEdificio;
   }
 
   String _getAulaInfo(int? id) {
     if (id == null) return 'N/A';
-    final grupo = _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
+    final grupo =
+        _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
     return grupo.nombreAula;
   }
 
@@ -362,15 +387,17 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                 children: [
                   // Filtros en columna para pantallas pequeñas
                   DropdownButtonFormField<String>(
-                    value: _filtroCarrera,
+                    initialValue: _filtroCarrera,
                     decoration: const InputDecoration(
                       labelText: 'Filtrar por Carrera',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     ),
                     isExpanded: true,
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('Todas las carreras')),
+                      const DropdownMenuItem(
+                          value: null, child: Text('Todas las carreras')),
                       ..._carreras.map((c) => DropdownMenuItem(
                             value: c.id.toString(),
                             child: Text(c.nombre),
@@ -385,15 +412,17 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _filtroGrupo,
+                    initialValue: _filtroGrupo,
                     decoration: const InputDecoration(
                       labelText: 'Filtrar por Grupo',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     ),
                     isExpanded: true,
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('Todos los grupos')),
+                      const DropdownMenuItem(
+                          value: null, child: Text('Todos los grupos')),
                       ..._gruposFiltrados.map((g) => DropdownMenuItem(
                             value: g.id.toString(),
                             child: Text(g.name),
@@ -431,7 +460,8 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                             child: Center(
                               child: Column(
                                 children: [
-                                  Icon(Icons.schedule, size: 64, color: Colors.grey),
+                                  Icon(Icons.schedule,
+                                      size: 64, color: Colors.grey),
                                   SizedBox(height: 16),
                                   Text(
                                     'No hay horarios registrados',
@@ -447,25 +477,53 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                               child: DataTable(
                                 columnSpacing: 12,
                                 columns: const [
-                                  DataColumn(label: Text('Profesor', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Materia', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Grupo', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Edificio', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Aula', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Días', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Horario', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Acciones', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Profesor',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Materia',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Grupo',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Edificio',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Aula',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Días',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Horario',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                      label: Text('Acciones',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
                                 ],
                                 rows: _horariosFiltrados.map((horario) {
-                                  final horaInicio = horario.horaInicio?.substring(0, 5) ?? 'N/A';
-                                  final horaFin = horario.horaFin?.substring(0, 5) ?? 'N/A';
+                                  final horaInicio =
+                                      horario.horaInicio?.substring(0, 5) ??
+                                          'N/A';
+                                  final horaFin =
+                                      horario.horaFin?.substring(0, 5) ?? 'N/A';
                                   return DataRow(
                                     cells: [
                                       DataCell(
                                         SizedBox(
                                           width: 150,
                                           child: Text(
-                                            _getMaestroNombre(horario.maestroId),
+                                            _getMaestroNombre(
+                                                horario.maestroId),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -474,7 +532,8 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                                         SizedBox(
                                           width: 120,
                                           child: Text(
-                                            _getMateriaNombre(horario.materiaId),
+                                            _getMateriaNombre(
+                                                horario.materiaId),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -521,19 +580,25 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             IconButton(
-                                              icon: const Icon(Icons.edit, color: Colors.blue, size: 20),
-                                              onPressed: () => _openForm(horario),
+                                              icon: const Icon(Icons.edit,
+                                                  color: Colors.blue, size: 20),
+                                              onPressed: () =>
+                                                  _openForm(horario),
                                               padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(),
+                                              constraints:
+                                                  const BoxConstraints(),
                                             ),
                                             IconButton(
-                                              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                                              icon: const Icon(Icons.delete,
+                                                  color: Colors.red, size: 20),
                                               onPressed: () {
-                                                print('BOTÓN ELIMINAR PRESIONADO - ID: ${horario.id}');
+                                                print(
+                                                    'BOTÓN ELIMINAR PRESIONADO - ID: ${horario.id}');
                                                 _eliminarHorario(horario);
                                               },
                                               padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(),
+                                              constraints:
+                                                  const BoxConstraints(),
                                             ),
                                           ],
                                         ),
@@ -564,229 +629,223 @@ class _AdminGestionHorariosScreenState extends State<AdminGestionHorariosScreen>
                         maxHeight: MediaQuery.of(context).size.height * 0.9,
                       ),
                       padding: const EdgeInsets.all(24),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Icon(_isEditing ? Icons.edit : Icons.add_circle,
-                                    color: Colors.blue),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _isEditing ? 'Editar Horario' : 'Nuevo Horario',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                Row(
+                                  children: [
+                                    Icon(
+                                        _isEditing
+                                            ? Icons.edit
+                                            : Icons.add_circle,
+                                        color: Colors.blue),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _isEditing
+                                          ? 'Editar Horario'
+                                          : 'Nuevo Horario',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: _closeForm,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            // Profesor
+                            DropdownButtonFormField<String>(
+                              initialValue: _selectedMaestro,
+                              decoration: const InputDecoration(
+                                labelText: 'Profesor',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _maestros
+                                  .map((m) => DropdownMenuItem(
+                                        value: m.id.toString(),
+                                        child: Text(m.name),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) =>
+                                  setState(() => _selectedMaestro = value),
+                            ),
+                            const SizedBox(height: 16),
+                            // Materia
+                            DropdownButtonFormField<String>(
+                              initialValue: _selectedMateria,
+                              decoration: const InputDecoration(
+                                labelText: 'Materia',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _materias
+                                  .map((m) => DropdownMenuItem(
+                                        value: m.id.toString(),
+                                        child: Text(m.name),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) =>
+                                  setState(() => _selectedMateria = value),
+                            ),
+                            const SizedBox(height: 16),
+                            // Grupo
+                            DropdownButtonFormField<String>(
+                              initialValue: _selectedGrupo,
+                              decoration: const InputDecoration(
+                                labelText: 'Grupo',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _grupos
+                                  .map((g) => DropdownMenuItem(
+                                        value: g.id.toString(),
+                                        child: Text(g.name),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) =>
+                                  setState(() => _selectedGrupo = value),
+                            ),
+                            const SizedBox(height: 16),
+                            // Días
+                            InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Días de la semana',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Wrap(
+                                spacing: 8,
+                                children: _diasSemana.map((dia) {
+                                  final isSelected =
+                                      _selectedDias.contains(dia);
+                                  return FilterChip(
+                                    label: Text(dia),
+                                    selected: isSelected,
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          if (!_selectedDias.contains(dia)) {
+                                            _selectedDias.add(dia);
+                                          }
+                                        } else {
+                                          _selectedDias.remove(dia);
+                                        }
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Hora Inicio
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ListTile(
+                                    title: const Text('Hora Inicio'),
+                                    subtitle: Text(
+                                      _horaInicio == null
+                                          ? 'Seleccionar hora'
+                                          : _horaInicio!.format(context),
+                                    ),
+                                    trailing: const Icon(Icons.access_time),
+                                    onTap: () async {
+                                      final time = await showTimePicker(
+                                        context: context,
+                                        initialTime:
+                                            _horaInicio ?? TimeOfDay.now(),
+                                      );
+                                      if (time != null) {
+                                        setState(() => _horaInicio = time);
+                                      }
+                                    },
                                   ),
                                 ),
                               ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: _closeForm,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Profesor
-                        DropdownButtonFormField<String>(
-                          value: _selectedMaestro,
-                          decoration: const InputDecoration(
-                            labelText: 'Profesor',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _maestros
-                              .map((m) => DropdownMenuItem(
-                                    value: m.id.toString(),
-                                    child: Text(m.name),
-                                  ))
-                              .toList(),
-                          onChanged: (value) => setState(() => _selectedMaestro = value),
-                        ),
-                        const SizedBox(height: 16),
-                        // Materia
-                        DropdownButtonFormField<String>(
-                          value: _selectedMateria,
-                          decoration: const InputDecoration(
-                            labelText: 'Materia',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _materias
-                              .map((m) => DropdownMenuItem(
-                                    value: m.id.toString(),
-                                    child: Text(m.name),
-                                  ))
-                              .toList(),
-                          onChanged: (value) => setState(() => _selectedMateria = value),
-                        ),
-                        const SizedBox(height: 16),
-                        // Grupo
-                        DropdownButtonFormField<String>(
-                          value: _selectedGrupo,
-                          decoration: const InputDecoration(
-                            labelText: 'Grupo',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _grupos
-                              .map((g) => DropdownMenuItem(
-                                    value: g.id.toString(),
-                                    child: Text(g.name),
-                                  ))
-                              .toList(),
-                          onChanged: (value) => setState(() => _selectedGrupo = value),
-                        ),
-                        const SizedBox(height: 16),
-                        // Días
-                        InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Días de la semana',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Wrap(
-                            spacing: 8,
-                            children: _diasSemana.map((dia) {
-                              final isSelected = _selectedDias.contains(dia);
-                              return FilterChip(
-                                label: Text(dia),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    if (selected) {
-                                      if (!_selectedDias.contains(dia)) {
-                                        _selectedDias.add(dia);
+                            const SizedBox(height: 16),
+                            // Hora Fin
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ListTile(
+                                    title: const Text('Hora Fin'),
+                                    subtitle: Text(
+                                      _horaFin == null
+                                          ? 'Seleccionar hora'
+                                          : _horaFin!.format(context),
+                                    ),
+                                    trailing: const Icon(Icons.access_time),
+                                    onTap: () async {
+                                      final time = await showTimePicker(
+                                        context: context,
+                                        initialTime:
+                                            _horaFin ?? TimeOfDay.now(),
+                                      );
+                                      if (time != null) {
+                                        setState(() => _horaFin = time);
                                       }
-                                    } else {
-                                      _selectedDias.remove(dia);
-                                    }
-                                  });
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Hora Inicio
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ListTile(
-                                title: const Text('Hora Inicio'),
-                                subtitle: Text(
-                                  _horaInicio == null
-                                      ? 'Seleccionar hora'
-                                      : _horaInicio!.format(context),
+                                    },
+                                  ),
                                 ),
-                                trailing: const Icon(Icons.access_time),
-                                onTap: () async {
-                                  final time = await showTimePicker(
-                                    context: context,
-                                    initialTime: _horaInicio ?? TimeOfDay.now(),
-                                  );
-                                  if (time != null) {
-                                    setState(() => _horaInicio = time);
-                                  }
-                                },
-                              ),
+                              ],
                             ),
-                            const SizedBox(width: 16),
-                            Flexible(
-                              child: DropdownButton<String>(
-                                value: _ampmInicio,
-                                items: const [
-                                  DropdownMenuItem(value: 'AM', child: Text('AM')),
-                                  DropdownMenuItem(value: 'PM', child: Text('PM')),
+                            const SizedBox(height: 16),
+                            // Hint
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info,
+                                      color: Colors.blue, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'La clase debe durar al menos 50 minutos',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
                                 ],
-                                onChanged: (value) => setState(() => _ampmInicio = value!),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // Hora Fin
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ListTile(
-                                title: const Text('Hora Fin'),
-                                subtitle: Text(
-                                  _horaFin == null
-                                      ? 'Seleccionar hora'
-                                      : _horaFin!.format(context),
+                            const SizedBox(height: 24),
+                            // Botones
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: _closeForm,
+                                  child: const Text('Cancelar'),
                                 ),
-                                trailing: const Icon(Icons.access_time),
-                                onTap: () async {
-                                  final time = await showTimePicker(
-                                    context: context,
-                                    initialTime: _horaFin ?? TimeOfDay.now(),
-                                  );
-                                  if (time != null) {
-                                    setState(() => _horaFin = time);
-                                  }
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Flexible(
-                              child: DropdownButton<String>(
-                                value: _ampmFin,
-                                items: const [
-                                  DropdownMenuItem(value: 'AM', child: Text('AM')),
-                                  DropdownMenuItem(value: 'PM', child: Text('PM')),
-                                ],
-                                onChanged: (value) => setState(() => _ampmFin = value!),
-                              ),
+                                const SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: _loading ? null : _crearHorario,
+                                  child: _loading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : Text(
+                                          _isEditing ? 'Actualizar' : 'Crear'),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        // Hint
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.info, color: Colors.blue, size: 18),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'La clase debe durar al menos 50 minutos',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Botones
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: _closeForm,
-                              child: const Text('Cancelar'),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: _loading ? null : _crearHorario,
-                              child: _loading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : Text(_isEditing ? 'Actualizar' : 'Crear'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
                     ),
                   ),
                 ),

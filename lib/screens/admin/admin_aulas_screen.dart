@@ -13,7 +13,7 @@ class _AdminAulasScreenState extends State<AdminAulasScreen> {
   final AulaService _aulaService = AulaService();
   final EdificioService _edificioService = EdificioService();
   final TextEditingController _nombreController = TextEditingController();
-  
+
   List<dynamic> _aulas = [];
   List<dynamic> _edificios = [];
   bool _loading = false;
@@ -78,7 +78,7 @@ class _AdminAulasScreenState extends State<AdminAulasScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
-                value: _selectedEdificio,
+                initialValue: _selectedEdificio,
                 decoration: const InputDecoration(
                   labelText: 'Edificio',
                   border: OutlineInputBorder(),
@@ -127,13 +127,16 @@ class _AdminAulasScreenState extends State<AdminAulasScreen> {
     setState(() => _loading = true);
     try {
       if (_aulaEditando == null) {
-        await _aulaService.create(numero, _selectedEdificio!);
+        await _aulaService.create(numero, _selectedEdificio.toString());
       } else {
-        await _aulaService.update(_aulaEditando['id'], numero, _selectedEdificio!);
+        await _aulaService.update(
+            _aulaEditando['id'], numero, _selectedEdificio.toString());
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Aula ${_aulaEditando == null ? "creada" : "actualizada"} correctamente')),
+          SnackBar(
+              content: Text(
+                  'Aula ${_aulaEditando == null ? "creada" : "actualizada"} correctamente')),
         );
         _loadData();
       }
@@ -234,27 +237,40 @@ class _AdminAulasScreenState extends State<AdminAulasScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
-                            headingRowColor: WidgetStateProperty.all(Colors.blue.shade50),
+                            headingRowColor:
+                                WidgetStateProperty.all(Colors.blue.shade50),
                             columns: const [
-                              DataColumn(label: Text('Numero', style: TextStyle(fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Edificio', style: TextStyle(fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Acciones', style: TextStyle(fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Numero',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Edificio',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Acciones',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
                             ],
                             rows: _aulas.map((aula) {
                               return DataRow(cells: [
                                 DataCell(Text(aula['numero'] ?? '')),
-                                DataCell(Text(_getNombreEdificio(aula['edificio_id']))),
+                                DataCell(Text(
+                                    _getNombreEdificio(aula['edificio_id']))),
                                 DataCell(
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue),
                                         onPressed: () => _showForm(aula),
                                         tooltip: 'Editar',
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red),
                                         onPressed: () => _eliminarAula(aula),
                                         tooltip: 'Eliminar',
                                       ),
@@ -272,4 +288,3 @@ class _AdminAulasScreenState extends State<AdminAulasScreen> {
     );
   }
 }
-

@@ -5,7 +5,7 @@ import 'checador_control_screen.dart';
 
 class ChecadorLayoutScreen extends StatefulWidget {
   final String currentRoute;
-  
+
   const ChecadorLayoutScreen({
     super.key,
     required this.currentRoute,
@@ -39,7 +39,8 @@ class _ChecadorLayoutScreenState extends State<ChecadorLayoutScreen> {
   }
 
   void _updateSelectedIndex() {
-    final index = _routes.indexWhere((route) => widget.currentRoute.contains(route));
+    final index =
+        _routes.indexWhere((route) => widget.currentRoute.contains(route));
     if (index != -1) {
       setState(() {
         _selectedIndex = index;
@@ -106,4 +107,3 @@ class _ChecadorLayoutScreenState extends State<ChecadorLayoutScreen> {
     );
   }
 }
-

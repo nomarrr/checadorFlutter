@@ -14,15 +14,21 @@ class AdminDrawer extends StatelessWidget {
   });
 
   final List<MenuItem> _menuItems = const [
-    MenuItem(text: 'Dashboard', icon: Icons.dashboard, route: '/admin/dashboard'),
-    MenuItem(text: 'Horarios', icon: Icons.calendar_today, route: '/admin/horarios'),
+    MenuItem(
+        text: 'Dashboard', icon: Icons.dashboard, route: '/admin/dashboard'),
+    MenuItem(
+        text: 'Horarios', icon: Icons.calendar_today, route: '/admin/horarios'),
     MenuItem(text: 'Grupos', icon: Icons.group, route: '/admin/grupos'),
     MenuItem(text: 'Usuarios', icon: Icons.person, route: '/admin/usuarios'),
     MenuItem(text: 'Materias', icon: Icons.book, route: '/admin/materias'),
     MenuItem(text: 'Carreras', icon: Icons.school, route: '/admin/carreras'),
-    MenuItem(text: 'Edificios', icon: Icons.business, route: '/admin/edificios'),
+    MenuItem(
+        text: 'Edificios', icon: Icons.business, route: '/admin/edificios'),
     MenuItem(text: 'Aulas', icon: Icons.door_front_door, route: '/admin/aulas'),
-    MenuItem(text: 'Consulta de Asistencias', icon: Icons.checklist, route: '/admin/consulta-asistencias'),
+    MenuItem(
+        text: 'Consulta de Asistencias',
+        icon: Icons.checklist,
+        route: '/admin/consulta-asistencias'),
   ];
 
   @override
@@ -49,10 +55,10 @@ class AdminDrawer extends StatelessWidget {
             // Header
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -96,161 +102,163 @@ class AdminDrawer extends StatelessWidget {
                 ],
               ),
             ),
-          // Menu Items
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _menuItems.length,
-              itemBuilder: (context, index) {
-                final item = _menuItems[index];
-                final isSelected = selectedIndex == index;
-                
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        if (!isSelected) {
-                          onItemSelected(index);
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? const LinearGradient(
-                                  colors: [
-                                    Color(0xFF4285F4),
-                                    Color(0xFF667EEA),
-                                  ],
-                                )
-                              : null,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border(
-                            left: BorderSide(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Colors.transparent,
-                              width: 3,
-                            ),
+            // Menu Items
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: _menuItems.length,
+                itemBuilder: (context, index) {
+                  final item = _menuItems[index];
+                  final isSelected = selectedIndex == index;
+
+                  return Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          if (!isSelected) {
+                            onItemSelected(index);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(0xFF4285F4)
-                                        .withOpacity(0.3),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              item.icon,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                item.text,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          decoration: BoxDecoration(
+                            gradient: isSelected
+                                ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFF4285F4),
+                                      Color(0xFF667EEA),
+                                    ],
+                                  )
+                                : null,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border(
+                              left: BorderSide(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                width: 3,
                               ),
                             ),
-                          ],
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(0xFF4285F4)
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                item.icon,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  item.text,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-          // Footer - Logout
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Colors.white.withOpacity(0.1),
-                  width: 1,
-                ),
+                  );
+                },
               ),
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () async {
-                  // Mostrar diálogo de confirmación
-                  final confirmar = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Cerrar Sesión'),
-                      content: const Text('¿Estás seguro que deseas cerrar sesión?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancelar'),
+            // Footer - Logout
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    // Mostrar diálogo de confirmación
+                    final confirmar = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Cerrar Sesión'),
+                        content: const Text(
+                            '¿Estás seguro que deseas cerrar sesión?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Sí, cerrar'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirmar == true && context.mounted) {
+                      await authProvider.logout();
+                      if (context.mounted) {
+                        context.go('/login');
+                      }
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.logout,
+                          color: Colors.white70,
+                          size: 20,
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Sí, cerrar'),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Cerrar Sesión',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  );
-                  
-                  if (confirmar == true && context.mounted) {
-                    await authProvider.logout();
-                    if (context.mounted) {
-                      context.go('/login');
-                    }
-                  }
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.logout,
-                        color: Colors.white70,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Cerrar Sesión',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -267,4 +275,3 @@ class MenuItem {
     required this.route,
   });
 }
-

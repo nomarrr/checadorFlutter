@@ -12,7 +12,7 @@ class AdminMateriasScreen extends StatefulWidget {
 class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
   final MateriaService _materiaService = MateriaService();
   final TextEditingController _nombreController = TextEditingController();
-  
+
   List<Materia> _materias = [];
   bool _loading = false;
   Materia? _materiaEditando;
@@ -100,7 +100,9 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Materia ${_materiaEditando == null ? "creada" : "actualizada"} correctamente')),
+          SnackBar(
+              content: Text(
+                  'Materia ${_materiaEditando == null ? "creada" : "actualizada"} correctamente')),
         );
         _loadMaterias();
       }
@@ -192,10 +194,17 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
-                            headingRowColor: MaterialStateProperty.all(Colors.blue.shade50),
+                            headingRowColor:
+                                WidgetStateProperty.all(Colors.blue.shade50),
                             columns: const [
-                              DataColumn(label: Text('Nombre', style: TextStyle(fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Acciones', style: TextStyle(fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Nombre',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Acciones',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
                             ],
                             rows: _materias.map((materia) {
                               return DataRow(cells: [
@@ -205,13 +214,16 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue),
                                         onPressed: () => _showForm(materia),
                                         tooltip: 'Editar',
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _eliminarMateria(materia),
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red),
+                                        onPressed: () =>
+                                            _eliminarMateria(materia),
                                         tooltip: 'Eliminar',
                                       ),
                                     ],

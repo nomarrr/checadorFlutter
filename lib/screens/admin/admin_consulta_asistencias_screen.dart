@@ -10,10 +10,12 @@ class AdminConsultaAsistenciasScreen extends StatefulWidget {
   const AdminConsultaAsistenciasScreen({super.key});
 
   @override
-  State<AdminConsultaAsistenciasScreen> createState() => _AdminConsultaAsistenciasScreenState();
+  State<AdminConsultaAsistenciasScreen> createState() =>
+      _AdminConsultaAsistenciasScreenState();
 }
 
-class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistenciasScreen> {
+class _AdminConsultaAsistenciasScreenState
+    extends State<AdminConsultaAsistenciasScreen> {
   final AsistenciaService _asistenciaService = AsistenciaService();
   final HorarioService _horarioService = HorarioService();
   final UsuarioService _usuarioService = UsuarioService();
@@ -268,15 +270,15 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                             labelText: 'Seleccionar Profesor',
                             border: OutlineInputBorder(),
                           ),
-                          value: _selectedMaestroId,
-                        items: _maestros.map((maestro) {
-                          return DropdownMenuItem(
-                            value: maestro.id,
-                            child: Text(
-                              maestro.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
+                          initialValue: _selectedMaestroId,
+                          items: _maestros.map((maestro) {
+                            return DropdownMenuItem(
+                              value: maestro.id,
+                              child: Text(
+                                maestro.name,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
@@ -337,7 +339,8 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                         child: ElevatedButton.icon(
                           onPressed: () {
                             setState(() {
-                              _selectedDate = _selectedDate.subtract(const Duration(days: 7));
+                              _selectedDate = _selectedDate
+                                  .subtract(const Duration(days: 7));
                             });
                             if (_selectedMaestroId != null) {
                               _consultarAsistencias();
@@ -352,7 +355,8 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                         child: ElevatedButton.icon(
                           onPressed: () {
                             setState(() {
-                              _selectedDate = _selectedDate.add(const Duration(days: 7));
+                              _selectedDate =
+                                  _selectedDate.add(const Duration(days: 7));
                             });
                             if (_selectedMaestroId != null) {
                               _consultarAsistencias();
@@ -398,7 +402,9 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
               child: Center(child: CircularProgressIndicator()),
             ),
 
-          if (!_loading && _selectedMaestroId != null && _horarios.isNotEmpty) ...[
+          if (!_loading &&
+              _selectedMaestroId != null &&
+              _horarios.isNotEmpty) ...[
             const SizedBox(height: 16),
 
             // Estadísticas
@@ -410,22 +416,37 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                   children: [
                     const Text(
                       'Resumen Semanal',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
-                        headingRowColor: MaterialStateProperty.all(Colors.blue.shade50),
+                        headingRowColor:
+                            WidgetStateProperty.all(Colors.blue.shade50),
                         columns: const [
-                          DataColumn(label: Text('Concepto', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Checador', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Jefe', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Maestro', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Concepto',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Checador',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Jefe',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Maestro',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
                         ],
                         rows: [
                           DataRow(cells: [
-                            const DataCell(Text('Total de Clases', style: TextStyle(fontWeight: FontWeight.bold))),
+                            const DataCell(Text('Total de Clases',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
                             DataCell(Text('${_stats['total']}')),
                             DataCell(Text('${_stats['total']}')),
                             DataCell(Text('${_stats['total']}')),
@@ -449,7 +470,8 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                             DataCell(Text('${_stats['maestro_falta']}')),
                           ]),
                           DataRow(cells: [
-                            const DataCell(Text('% Asistencia*', style: TextStyle(fontWeight: FontWeight.bold))),
+                            const DataCell(Text('% Asistencia*',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
                             DataCell(Text(_calcularPorcentaje(
                               _stats['checador_presente']!,
                               _stats['checador_retardo']!,
@@ -515,19 +537,41 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                         padding: const EdgeInsets.all(8.0),
                         child: DataTable(
                           columnSpacing: 12,
-                          headingRowColor: MaterialStateProperty.all(Colors.blue.shade50),
+                          headingRowColor:
+                              WidgetStateProperty.all(Colors.blue.shade50),
                           columns: const [
-                            DataColumn(label: Text('Hora', style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Materia', style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Grupo', style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Checador', style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Jefe', style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Maestro', style: TextStyle(fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Hora',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Materia',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Grupo',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Checador',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Jefe',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Maestro',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold))),
                           ],
                           rows: horariosDelDia.map((horario) {
-                            final checadorEstado = _getAsistenciaEstado(horario.id, 'checador', dia['nombre']);
-                            final jefeEstado = _getAsistenciaEstado(horario.id, 'jefe', dia['nombre']);
-                            final maestroEstado = _getAsistenciaEstado(horario.id, 'maestro', dia['nombre']);
+                            final checadorEstado = _getAsistenciaEstado(
+                                horario.id, 'checador', dia['nombre']);
+                            final jefeEstado = _getAsistenciaEstado(
+                                horario.id, 'jefe', dia['nombre']);
+                            final maestroEstado = _getAsistenciaEstado(
+                                horario.id, 'maestro', dia['nombre']);
 
                             return DataRow(cells: [
                               DataCell(Text(
@@ -549,7 +593,8 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                                 ),
                               )),
                               DataCell(Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: _getEstadoColor(checadorEstado),
                                   borderRadius: BorderRadius.circular(4),
@@ -564,7 +609,8 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                                 ),
                               )),
                               DataCell(Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: _getEstadoColor(jefeEstado),
                                   borderRadius: BorderRadius.circular(4),
@@ -579,7 +625,8 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                                 ),
                               )),
                               DataCell(Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: _getEstadoColor(maestroEstado),
                                   borderRadius: BorderRadius.circular(4),
@@ -601,7 +648,7 @@ class _AdminConsultaAsistenciasScreenState extends State<AdminConsultaAsistencia
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
 
           if (!_loading && _selectedMaestroId != null && _horarios.isEmpty)

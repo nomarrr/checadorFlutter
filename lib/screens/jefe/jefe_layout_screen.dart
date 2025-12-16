@@ -5,7 +5,7 @@ import 'jefe_horario_screen.dart';
 
 class JefeLayoutScreen extends StatefulWidget {
   final String currentRoute;
-  
+
   const JefeLayoutScreen({
     super.key,
     required this.currentRoute,
@@ -39,7 +39,8 @@ class _JefeLayoutScreenState extends State<JefeLayoutScreen> {
   }
 
   void _updateSelectedIndex() {
-    final index = _routes.indexWhere((route) => widget.currentRoute.contains(route));
+    final index =
+        _routes.indexWhere((route) => widget.currentRoute.contains(route));
     if (index != -1) {
       setState(() {
         _selectedIndex = index;
@@ -106,4 +107,3 @@ class _JefeLayoutScreenState extends State<JefeLayoutScreen> {
     );
   }
 }
-

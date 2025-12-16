@@ -14,10 +14,12 @@ class AdminConsultaHorariosScreen extends StatefulWidget {
   const AdminConsultaHorariosScreen({super.key});
 
   @override
-  State<AdminConsultaHorariosScreen> createState() => _AdminConsultaHorariosScreenState();
+  State<AdminConsultaHorariosScreen> createState() =>
+      _AdminConsultaHorariosScreenState();
 }
 
-class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScreen> {
+class _AdminConsultaHorariosScreenState
+    extends State<AdminConsultaHorariosScreen> {
   final HorarioService _horarioService = HorarioService();
   final UsuarioService _usuarioService = UsuarioService();
   final MateriaService _materiaService = MateriaService();
@@ -97,25 +99,29 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
 
   String _getMaestroNombre(int? id) {
     if (id == null) return 'N/A';
-    final maestro = _maestros.firstWhere((m) => m.id == id, orElse: () => Usuario(name: 'N/A'));
+    final maestro = _maestros.firstWhere((m) => m.id == id,
+        orElse: () => Usuario(name: 'N/A'));
     return maestro.name;
   }
 
   String _getMateriaNombre(int? id) {
     if (id == null) return 'N/A';
-    final materia = _materias.firstWhere((m) => m.id == id, orElse: () => Materia(name: 'N/A'));
+    final materia = _materias.firstWhere((m) => m.id == id,
+        orElse: () => Materia(name: 'N/A'));
     return materia.name;
   }
 
   String _getGrupoNombre(int? id) {
     if (id == null) return 'N/A';
-    final grupo = _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
+    final grupo =
+        _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
     return grupo.name;
   }
 
   String _getAulaInfo(int? id) {
     if (id == null) return 'N/A';
-    final grupo = _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
+    final grupo =
+        _grupos.firstWhere((g) => g.id == id, orElse: () => Grupo(name: 'N/A'));
     final aula = grupo.nombreAula;
     final edificio = grupo.nombreEdificio;
     return edificio != 'N/A' ? '$aula - $edificio' : aula;
@@ -145,16 +151,19 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
                   const SizedBox(height: 16),
                   // Filtro tipo
                   DropdownButtonFormField<String>(
-                    value: _filtroTipo,
+                    initialValue: _filtroTipo,
                     decoration: const InputDecoration(
                       labelText: 'Filtrar por',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     ),
                     isExpanded: true,
                     items: const [
-                      DropdownMenuItem(value: 'carrera', child: Text('Carrera')),
-                      DropdownMenuItem(value: 'maestro', child: Text('Profesor')),
+                      DropdownMenuItem(
+                          value: 'carrera', child: Text('Carrera')),
+                      DropdownMenuItem(
+                          value: 'maestro', child: Text('Profesor')),
                       DropdownMenuItem(value: 'grupo', child: Text('Grupo')),
                     ],
                     onChanged: (value) {
@@ -170,57 +179,66 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
                   // Filtro específico según tipo
                   if (_filtroTipo == 'carrera')
                     DropdownButtonFormField<String>(
-                      value: _filtroCarrera,
+                      initialValue: _filtroCarrera,
                       decoration: const InputDecoration(
                         labelText: 'Carrera',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                       isExpanded: true,
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Seleccionar')),
+                        const DropdownMenuItem(
+                            value: null, child: Text('Seleccionar')),
                         ..._carreras.map((c) => DropdownMenuItem(
                               value: c.id.toString(),
                               child: Text(c.nombre),
                             )),
                       ],
-                      onChanged: (value) => setState(() => _filtroCarrera = value),
+                      onChanged: (value) =>
+                          setState(() => _filtroCarrera = value),
                     ),
                   if (_filtroTipo == 'maestro')
                     DropdownButtonFormField<String>(
-                      value: _filtroMaestro,
+                      initialValue: _filtroMaestro,
                       decoration: const InputDecoration(
                         labelText: 'Profesor',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                       isExpanded: true,
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Seleccionar')),
+                        const DropdownMenuItem(
+                            value: null, child: Text('Seleccionar')),
                         ..._maestros.map((m) => DropdownMenuItem(
                               value: m.id.toString(),
                               child: Text(m.name),
                             )),
                       ],
-                      onChanged: (value) => setState(() => _filtroMaestro = value),
+                      onChanged: (value) =>
+                          setState(() => _filtroMaestro = value),
                     ),
                   if (_filtroTipo == 'grupo')
                     DropdownButtonFormField<String>(
-                      value: _filtroGrupo,
+                      initialValue: _filtroGrupo,
                       decoration: const InputDecoration(
                         labelText: 'Grupo',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                       isExpanded: true,
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Seleccionar')),
+                        const DropdownMenuItem(
+                            value: null, child: Text('Seleccionar')),
                         ..._grupos.map((g) => DropdownMenuItem(
                               value: g.id.toString(),
                               child: Text(g.name),
                             )),
                       ],
-                      onChanged: (value) => setState(() => _filtroGrupo = value),
+                      onChanged: (value) =>
+                          setState(() => _filtroGrupo = value),
                     ),
                   const SizedBox(height: 16),
                   // Botón buscar
@@ -276,23 +294,52 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
                                   child: DataTable(
                                     columnSpacing: 16,
                                     columns: const [
-                                      DataColumn(label: Text('Profesor', style: TextStyle(fontWeight: FontWeight.bold))),
-                                      DataColumn(label: Text('Materia', style: TextStyle(fontWeight: FontWeight.bold))),
-                                      DataColumn(label: Text('Grupo', style: TextStyle(fontWeight: FontWeight.bold))),
-                                      DataColumn(label: Text('Aula - Edificio', style: TextStyle(fontWeight: FontWeight.bold))),
-                                      DataColumn(label: Text('Días', style: TextStyle(fontWeight: FontWeight.bold))),
-                                      DataColumn(label: Text('Hora', style: TextStyle(fontWeight: FontWeight.bold))),
+                                      DataColumn(
+                                          label: Text('Profesor',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      DataColumn(
+                                          label: Text('Materia',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      DataColumn(
+                                          label: Text('Grupo',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      DataColumn(
+                                          label: Text('Aula - Edificio',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      DataColumn(
+                                          label: Text('Días',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      DataColumn(
+                                          label: Text('Hora',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.bold))),
                                     ],
                                     rows: _horarios.map((horario) {
-                                      final horaInicio = horario.horaInicio?.substring(0, 5) ?? 'N/A';
-                                      final horaFin = horario.horaFin?.substring(0, 5) ?? 'N/A';
+                                      final horaInicio =
+                                          horario.horaInicio?.substring(0, 5) ??
+                                              'N/A';
+                                      final horaFin =
+                                          horario.horaFin?.substring(0, 5) ??
+                                              'N/A';
                                       return DataRow(
                                         cells: [
                                           DataCell(
                                             SizedBox(
                                               width: 150,
                                               child: Text(
-                                                _getMaestroNombre(horario.maestroId),
+                                                _getMaestroNombre(
+                                                    horario.maestroId),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -301,7 +348,8 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
                                             SizedBox(
                                               width: 120,
                                               child: Text(
-                                                _getMateriaNombre(horario.materiaId),
+                                                _getMateriaNombre(
+                                                    horario.materiaId),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -310,7 +358,8 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
                                             SizedBox(
                                               width: 100,
                                               child: Text(
-                                                _getGrupoNombre(horario.grupoId),
+                                                _getGrupoNombre(
+                                                    horario.grupoId),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -333,7 +382,8 @@ class _AdminConsultaHorariosScreenState extends State<AdminConsultaHorariosScree
                                               ),
                                             ),
                                           ),
-                                          DataCell(Text('$horaInicio - $horaFin')),
+                                          DataCell(
+                                              Text('$horaInicio - $horaFin')),
                                         ],
                                       );
                                     }).toList(),

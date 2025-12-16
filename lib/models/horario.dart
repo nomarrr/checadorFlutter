@@ -49,26 +49,20 @@ class HorarioMaestro {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'maestro_id': maestroId,
       'materia_id': materiaId,
       'grupo_id': grupoId,
       'dias': dias,
       'hora_inicio': horaInicio,
       'hora_fin': horaFin,
-      'asistencia': asistencia,
-      'maestro': maestro,
-      'usuario': usuario,
-      'materia': materia,
-      'grupo': grupo,
-      'created_at': createdAt,
     };
   }
 
-  String get nombreMaestro => maestro?['name'] ?? usuario?['name'] ?? 'Sin maestro';
+  String get nombreMaestro =>
+      maestro?['name'] ?? usuario?['name'] ?? 'Sin maestro';
   String get nombreMateria => materia?['name'] ?? 'Sin materia';
   String get nombreGrupo => grupo?['name'] ?? 'Sin grupo';
   String get nombreAula => grupo?['aula']?['numero'] ?? 'Sin aula';
-  String get nombreEdificio => grupo?['aula']?['edificio']?['nombre'] ?? 'Sin edificio';
+  String get nombreEdificio =>
+      grupo?['aula']?['edificio']?['nombre'] ?? 'Sin edificio';
 }
-

@@ -11,7 +11,7 @@ class AdminEdificiosScreen extends StatefulWidget {
 class _AdminEdificiosScreenState extends State<AdminEdificiosScreen> {
   final EdificioService _edificioService = EdificioService();
   final TextEditingController _nombreController = TextEditingController();
-  
+
   List<dynamic> _edificios = [];
   bool _loading = false;
   dynamic _edificioEditando;
@@ -99,7 +99,9 @@ class _AdminEdificiosScreenState extends State<AdminEdificiosScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Edificio ${_edificioEditando == null ? "creado" : "actualizado"} correctamente')),
+          SnackBar(
+              content: Text(
+                  'Edificio ${_edificioEditando == null ? "creado" : "actualizado"} correctamente')),
         );
         _loadEdificios();
       }
@@ -118,7 +120,8 @@ class _AdminEdificiosScreenState extends State<AdminEdificiosScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmar Eliminación'),
-        content: Text('¿Está seguro de eliminar el edificio "${edificio['nombre']}"?'),
+        content: Text(
+            '¿Está seguro de eliminar el edificio "${edificio['nombre']}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -191,10 +194,17 @@ class _AdminEdificiosScreenState extends State<AdminEdificiosScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
-                            headingRowColor: MaterialStateProperty.all(Colors.blue.shade50),
+                            headingRowColor:
+                                WidgetStateProperty.all(Colors.blue.shade50),
                             columns: const [
-                              DataColumn(label: Text('Nombre', style: TextStyle(fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Acciones', style: TextStyle(fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Nombre',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Acciones',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
                             ],
                             rows: _edificios.map((edificio) {
                               return DataRow(cells: [
@@ -204,13 +214,16 @@ class _AdminEdificiosScreenState extends State<AdminEdificiosScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue),
                                         onPressed: () => _showForm(edificio),
                                         tooltip: 'Editar',
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _eliminarEdificio(edificio),
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red),
+                                        onPressed: () =>
+                                            _eliminarEdificio(edificio),
                                         tooltip: 'Eliminar',
                                       ),
                                     ],
@@ -227,4 +240,3 @@ class _AdminEdificiosScreenState extends State<AdminEdificiosScreen> {
     );
   }
 }
-

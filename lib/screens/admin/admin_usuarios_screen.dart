@@ -121,13 +121,15 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
     }
 
     if (!_isEditing && _passwordController.text.isEmpty) {
-      _showMessage('La contraseña es requerida para nuevos usuarios', isError: true);
+      _showMessage('La contraseña es requerida para nuevos usuarios',
+          isError: true);
       return;
     }
 
     if (_numeroCuentaController.text.isNotEmpty &&
         !RegExp(r'^\d+$').hasMatch(_numeroCuentaController.text)) {
-      _showMessage('El número de cuenta debe contener solo números', isError: true);
+      _showMessage('El número de cuenta debe contener solo números',
+          isError: true);
       return;
     }
 
@@ -137,9 +139,13 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
       final usuarioData = Usuario(
         name: _nameController.text,
         email: _emailController.text,
-        password: _passwordController.text.isNotEmpty ? _passwordController.text : null,
+        password: _passwordController.text.isNotEmpty
+            ? _passwordController.text
+            : null,
         role: _selectedRole,
-        numeroCuenta: _numeroCuentaController.text.isNotEmpty ? _numeroCuentaController.text : null,
+        numeroCuenta: _numeroCuentaController.text.isNotEmpty
+            ? _numeroCuentaController.text
+            : null,
       );
 
       if (_isEditing && _selectedUser != null) {
@@ -391,7 +397,7 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
           // Modal del formulario
           if (_showForm)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               child: Center(
                 child: GestureDetector(
                   onTap: () {},
@@ -444,7 +450,7 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
-                            value: _selectedRole,
+                            initialValue: _selectedRole,
                             decoration: const InputDecoration(
                               labelText: 'Rol',
                               border: OutlineInputBorder(),
@@ -503,9 +509,7 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : Text(_isEditing
-                                        ? 'Actualizar'
-                                        : 'Crear'),
+                                    : Text(_isEditing ? 'Actualizar' : 'Crear'),
                               ),
                             ],
                           ),

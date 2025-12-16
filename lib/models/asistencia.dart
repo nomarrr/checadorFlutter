@@ -53,7 +53,8 @@ class AsistenciaChecador {
       id: json['id'],
       horarioId: json['horario_id'],
       fecha: json['fecha'] ?? '',
-      asistencia: TipoAsistenciaExtension.fromString(json['asistencia'] ?? 'Falta'),
+      asistencia:
+          TipoAsistenciaExtension.fromString(json['asistencia'] ?? 'Falta'),
       checadorId: json['checador_id'] ?? 0,
       createdAt: json['created_at'],
     );
@@ -93,7 +94,8 @@ class AsistenciaJefe {
       id: json['id'],
       horarioId: json['horario_id'],
       fecha: json['fecha'] ?? '',
-      asistencia: TipoAsistenciaExtension.fromString(json['asistencia'] ?? 'Falta'),
+      asistencia:
+          TipoAsistenciaExtension.fromString(json['asistencia'] ?? 'Falta'),
       jefeId: json['jefe_id'] ?? 0,
       createdAt: json['created_at'],
     );
@@ -133,7 +135,8 @@ class AsistenciaMaestro {
       id: json['id'],
       horarioId: json['horario_id'],
       fecha: json['fecha'] ?? '',
-      asistencia: TipoAsistenciaExtension.fromString(json['asistencia'] ?? 'Falta'),
+      asistencia:
+          TipoAsistenciaExtension.fromString(json['asistencia'] ?? 'Falta'),
       maestroId: json['maestro_id'] ?? 0,
       createdAt: json['created_at'],
     );
@@ -150,4 +153,3 @@ class AsistenciaMaestro {
     };
   }
 }
-

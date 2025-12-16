@@ -12,7 +12,7 @@ class AdminCarrerasScreen extends StatefulWidget {
 class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
   final CarreraService _carreraService = CarreraService();
   final TextEditingController _nombreController = TextEditingController();
-  
+
   List<Carrera> _carreras = [];
   bool _loading = false;
   Carrera? _carreraEditando;
@@ -100,7 +100,9 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Carrera ${_carreraEditando == null ? "creada" : "actualizada"} correctamente')),
+          SnackBar(
+              content: Text(
+                  'Carrera ${_carreraEditando == null ? "creada" : "actualizada"} correctamente')),
         );
         _loadCarreras();
       }
@@ -119,7 +121,8 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmar Eliminación'),
-        content: Text('¿Está seguro de eliminar la carrera "${carrera.nombre}"?'),
+        content:
+            Text('¿Está seguro de eliminar la carrera "${carrera.nombre}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -192,10 +195,17 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
-                            headingRowColor: MaterialStateProperty.all(Colors.blue.shade50),
+                            headingRowColor:
+                                WidgetStateProperty.all(Colors.blue.shade50),
                             columns: const [
-                              DataColumn(label: Text('Nombre', style: TextStyle(fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Acciones', style: TextStyle(fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Nombre',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Acciones',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
                             ],
                             rows: _carreras.map((carrera) {
                               return DataRow(cells: [
@@ -205,13 +215,16 @@ class _AdminCarrerasScreenState extends State<AdminCarrerasScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue),
                                         onPressed: () => _showForm(carrera),
                                         tooltip: 'Editar',
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _eliminarCarrera(carrera),
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red),
+                                        onPressed: () =>
+                                            _eliminarCarrera(carrera),
                                         tooltip: 'Eliminar',
                                       ),
                                     ],

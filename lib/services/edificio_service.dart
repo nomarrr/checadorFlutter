@@ -25,7 +25,7 @@ class EdificioService {
     }
   }
 
-  Future<Map<String, dynamic>> create(String nombre) async {
+  Future<dynamic> create(String nombre) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.post(
@@ -44,7 +44,7 @@ class EdificioService {
     }
   }
 
-  Future<Map<String, dynamic>> update(int id, String nombre) async {
+  Future<dynamic> update(int id, String nombre) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.put(

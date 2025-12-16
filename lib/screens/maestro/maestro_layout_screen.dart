@@ -5,7 +5,7 @@ import 'maestro_dashboard_screen.dart';
 
 class MaestroLayoutScreen extends StatefulWidget {
   final String currentRoute;
-  
+
   const MaestroLayoutScreen({
     super.key,
     required this.currentRoute,
@@ -39,7 +39,8 @@ class _MaestroLayoutScreenState extends State<MaestroLayoutScreen> {
   }
 
   void _updateSelectedIndex() {
-    final index = _routes.indexWhere((route) => widget.currentRoute.contains(route));
+    final index =
+        _routes.indexWhere((route) => widget.currentRoute.contains(route));
     if (index != -1) {
       setState(() {
         _selectedIndex = index;
@@ -106,4 +107,3 @@ class _MaestroLayoutScreenState extends State<MaestroLayoutScreen> {
     );
   }
 }
-

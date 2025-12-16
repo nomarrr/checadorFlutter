@@ -34,9 +34,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
@@ -46,13 +46,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           print('App pausada a las: $_lastPausedTime');
         }
         break;
-        
+
       case AppLifecycleState.resumed:
         // App vuelve a primer plano
         if (_lastPausedTime != null && authProvider.isAuthenticated) {
           final inactiveTime = DateTime.now().difference(_lastPausedTime!);
-          print('App resumida. Tiempo inactivo: ${inactiveTime.inMinutes} minutos');
-          
+          print(
+              'App resumida. Tiempo inactivo: ${inactiveTime.inMinutes} minutos');
+
           if (inactiveTime >= _inactivityTimeout) {
             // Cerrar sesión automáticamente
             print('Sesión cerrada por inactividad');
@@ -60,7 +61,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               if (mounted) {
                 // Navegar al login
                 context.go('/login');
-                
+
                 // Mostrar mensaje
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -75,7 +76,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           _lastPausedTime = null;
         }
         break;
-        
+
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         break;
@@ -100,4 +101,3 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 }
-

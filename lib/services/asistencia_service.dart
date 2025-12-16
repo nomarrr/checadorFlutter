@@ -54,7 +54,8 @@ class AsistenciaService {
     }
   }
 
-  Future<void> updateAsistenciaChecador(int id, TipoAsistencia nuevoEstado) async {
+  Future<void> updateAsistenciaChecador(
+      int id, TipoAsistencia nuevoEstado) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.put(
@@ -189,7 +190,8 @@ class AsistenciaService {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('${Environment.apiUrl}/asistencias/resumen/$maestroId/$fecha'),
+        Uri.parse(
+            '${Environment.apiUrl}/asistencias/resumen/$maestroId/$fecha'),
         headers: headers,
       );
 
@@ -211,7 +213,7 @@ class AsistenciaService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      
+
       // Obtener asistencias de las tres fuentes en paralelo
       final results = await Future.wait([
         http.get(
@@ -237,12 +239,12 @@ class AsistenciaService {
           .where((a) => _estaEnRango(a['fecha'], fechaInicio, fechaFin))
           .map((a) => {...a, 'tipo': 'checador'})
           .toList();
-      
+
       final jefeList = (jefeData['data'] as List? ?? [])
           .where((a) => _estaEnRango(a['fecha'], fechaInicio, fechaFin))
           .map((a) => {...a, 'tipo': 'jefe'})
           .toList();
-      
+
       final maestroList = (maestroData['data'] as List? ?? [])
           .where((a) => _estaEnRango(a['fecha'], fechaInicio, fechaFin))
           .map((a) => {...a, 'tipo': 'maestro'})
@@ -275,4 +277,3 @@ class AsistenciaService {
     }
   }
 }
-

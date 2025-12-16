@@ -72,7 +72,7 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
 
     for (var horario in _horariosFiltrados) {
       final dias = horario.dias?.toLowerCase() ?? '';
-      
+
       if (dias.contains('lunes')) agrupados['Lunes']!.add(horario);
       if (dias.contains('martes')) agrupados['Martes']!.add(horario);
       if (dias.contains('miércoles') || dias.contains('miercoles')) {
@@ -97,7 +97,7 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
   @override
   Widget build(BuildContext context) {
     final horariosPorDia = _agruparPorDia();
-    
+
     return Column(
       children: [
         // Barra de búsqueda
@@ -206,7 +206,7 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -246,7 +246,7 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: accentColor.withOpacity(0.3), width: 1),
+        side: BorderSide(color: accentColor.withValues(alpha: 0.3), width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -263,7 +263,7 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.15),
+                    color: accentColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -295,7 +295,7 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
             const SizedBox(height: 6),
             _buildInfoRow(Icons.group, 'Grupo', horario.nombreGrupo),
             const SizedBox(height: 6),
-            _buildInfoRow(Icons.room, 'Aula', 
+            _buildInfoRow(Icons.room, 'Aula',
                 '${horario.nombreAula} - ${horario.nombreEdificio}'),
           ],
         ),
@@ -329,4 +329,3 @@ class _AlumnoHorarioScreenState extends State<AlumnoHorarioScreen> {
     );
   }
 }
-

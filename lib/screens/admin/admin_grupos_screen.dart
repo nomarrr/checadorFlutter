@@ -178,8 +178,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
     try {
       final aula = aulas.firstWhere((a) => a['id'] == aulaId);
       final edificioId = aula['edificio_id'];
-      final edificio =
-          edificios.firstWhere((e) => e['id'] == edificioId);
+      final edificio = edificios.firstWhere((e) => e['id'] == edificioId);
       return edificio['nombre']?.toString() ?? 'N/A';
     } catch (e) {
       return 'N/A';
@@ -278,7 +277,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
-                      value: _selectedCarreraId,
+                      initialValue: _selectedCarreraId,
                       decoration: const InputDecoration(
                         labelText: 'Carrera',
                         border: OutlineInputBorder(),
@@ -295,7 +294,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
-                      value: _selectedJefeId,
+                      initialValue: _selectedJefeId,
                       decoration: const InputDecoration(
                         labelText: 'Jefe de Grupo',
                         border: OutlineInputBorder(),
@@ -312,18 +311,19 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<dynamic>(
-                      value: _selectedAulaId,
+                      initialValue: _selectedAulaId,
                       decoration: const InputDecoration(
                         labelText: 'Aula',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.door_sliding),
                       ),
                       items: aulas
-                          .map<DropdownMenuItem<dynamic>>((a) => DropdownMenuItem(
-                                value: a['id'],
-                                child: Text(
-                                    '${a['numero']} - ${_getNombreEdificioParaAula(a)}'),
-                              ))
+                          .map<DropdownMenuItem<dynamic>>(
+                              (a) => DropdownMenuItem(
+                                    value: a['id'],
+                                    child: Text(
+                                        '${a['numero']} - ${_getNombreEdificioParaAula(a)}'),
+                                  ))
                           .toList(),
                       onChanged: (value) =>
                           setState(() => _selectedAulaId = value),
@@ -391,20 +391,19 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                                     DataCell(Text(grupo.name)),
                                     DataCell(Text(
                                         _getNombreCarrera(grupo.carreraId))),
-                                    DataCell(Text(
-                                        _getNombreJefe(grupo.jefeId))),
+                                    DataCell(
+                                        Text(_getNombreJefe(grupo.jefeId))),
                                     DataCell(
                                         Text(_getNombreAula(grupo.aulaId))),
-                                    DataCell(Text(
-                                        _getNombreEdificio(grupo.aulaId))),
+                                    DataCell(
+                                        Text(_getNombreEdificio(grupo.aulaId))),
                                     DataCell(
                                       IconButton(
                                         icon: const Icon(
                                           Icons.delete,
                                           color: Colors.red,
                                         ),
-                                        onPressed: () =>
-                                            _eliminarGrupo(grupo),
+                                        onPressed: () => _eliminarGrupo(grupo),
                                         tooltip: 'Eliminar grupo',
                                       ),
                                     ),
