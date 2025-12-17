@@ -293,6 +293,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
                       initialValue: _selectedCarreraId,
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Carrera',
                         border: OutlineInputBorder(),
@@ -301,7 +302,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                       items: carreras
                           .map((c) => DropdownMenuItem(
                                 value: c.id,
-                                child: Text(c.nombre),
+                                child: Text(c.nombre, overflow: TextOverflow.ellipsis),
                               ))
                           .toList(),
                       onChanged: (value) =>

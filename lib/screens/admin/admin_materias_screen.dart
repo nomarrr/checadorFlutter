@@ -105,6 +105,7 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int?>(
                   initialValue: _selectedCarreraId,
+                  isExpanded: true,
                   decoration: const InputDecoration(
                     labelText: 'Carrera',
                     border: OutlineInputBorder(),
@@ -112,7 +113,7 @@ class _AdminMateriasScreenState extends State<AdminMateriasScreen> {
                   items: _carreras.map((carrera) {
                     return DropdownMenuItem<int?>(
                       value: carrera.id,
-                      child: Text(carrera.nombre),
+                      child: Text(carrera.nombre, overflow: TextOverflow.ellipsis),
                     );
                   }).toList(),
                   onChanged: (value) {

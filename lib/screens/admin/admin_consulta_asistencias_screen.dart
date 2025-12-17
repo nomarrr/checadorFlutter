@@ -266,6 +266,7 @@ class _AdminConsultaAsistenciasScreenState
                     children: [
                       Expanded(
                         child: DropdownButtonFormField<int>(
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Seleccionar Profesor',
                             border: OutlineInputBorder(),
